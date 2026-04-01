@@ -44,6 +44,15 @@ function pho_menu_grid_ux_builder_component() {
 						'step'        => 1,
 						'description' => '-1 to show all items.',
 					),
+					'default_tab'        => array(
+						'type'        => 'slider',
+						'heading'     => __( 'Default Active Tab', 'pho-menu-grid' ),
+						'default'     => 1,
+						'max'         => 10,
+						'min'         => 1,
+						'step'        => 1,
+						'description' => 'Which tab should be open by default (1 = first tab, 2 = second...).',
+					),
 				),
 			),
 

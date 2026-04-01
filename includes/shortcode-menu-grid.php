@@ -11,6 +11,7 @@ function pho_menu_grid_render_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
 		'categories'         => '',      // Chuỗi ID các menu_category cách nhau dấu phẩy
 		'posts_per_category' => -1,
+		'default_tab'        => 1,
 		'auto_play_tabs'     => 3000,
 		'primary_color'      => '#0e603b',
 		'accent_color'       => '#f39c12',
@@ -244,14 +245,20 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		return ob_get_clean();
 	}
 
+	// Normalize default_tab index
+	$default_tab = (int) $atts['default_tab'];
+	if ( $default_tab < 1 || $default_tab > count( $categories_arr ) ) {
+		$default_tab = 1;
+	}
+	$default_index = $default_tab - 1; // 0-based mapping
+
 	// ==========================================
 	// 2. RENDER NAVIGATION TABS
 	// ==========================================
 	echo '<div class="menu-nav-container"><div class="menu-nav">';
-	$first_tab_active = true;
 
 	foreach ( $categories_arr as $index => $cat ) {
-		$active_class = $first_tab_active ? 'active' : '';
+		$active_class = ( $index === $default_index ) ? 'active' : '';
 		$target_id    = 'tab-' . esc_attr( $cat->slug ) . '-' . esc_attr( $el_id );
 		
 		// Get term meta
@@ -275,8 +282,6 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		echo '</div>';
 		
 		echo '</button>';
-		
-		$first_tab_active = false;
 	}
 	echo '</div></div>';
 
@@ -284,10 +289,9 @@ function pho_menu_grid_render_shortcode( $atts ) {
 	// 3. RENDER TAB PANELS & CAROUSELS
 	// ==========================================
 	echo '<div class="tab-panels-wrapper">';
-	$first_panel_active = true;
 
 	foreach ( $categories_arr as $index => $cat ) {
-		$display_style = $first_panel_active ? 'display: block;' : 'display: none;';
+		$display_style = ( $index === $default_index ) ? 'display: block;' : 'display: none;';
 		$target_id     = 'tab-' . esc_attr( $cat->slug ) . '-' . esc_attr( $el_id );
 		$carousel_class = 'carousel-' . esc_attr( $cat->slug ) . '-' . esc_attr( $el_id );
 
@@ -377,7 +381,6 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		}
 
 		echo '</div></div>'; // End carousel & tab-panel
-		$first_panel_active = false;
 	}
 	echo '</div>'; // End tab-panels-wrapper
 
@@ -424,7 +427,7 @@ function pho_menu_grid_render_shortcode( $atts ) {
 
 		// 2. Tab Switching Logic
 		const tabButtons = Array.from(wrapper.querySelectorAll('.nav-item'));
-		let currentTabIndex = 0;
+		let currentTabIndex = <?php echo (int) $default_index; ?>;
 		let autoPlayTimer;
 
 		function switchTab(btn) {
@@ -439,12 +442,28 @@ function pho_menu_grid_render_shortcode( $atts ) {
 			if(currentActiveBtn) currentActiveBtn.classList.remove('active');
 			btn.classList.add('active');
 
-			// Fallback animation if GSAP isn't available
 			const hasGSAP = typeof gsap !== 'undefined';
+			const newPanel = document.getElementById(targetId);
+
+			if (hasGSAP) {
+				// Kill any ongoing animations to prevent overlapping glitches
+				gsap.killTweensOf(wrapper.querySelectorAll('.tab-panel'));
+			}
+
+			// Clean up any stray panels that might have gotten stuck
+			wrapper.querySelectorAll('.tab-panel').forEach(p => {
+				if (currentActivePanel && p === currentActivePanel) return;
+				if (newPanel && p === newPanel) return;
+				p.style.display = 'none';
+				p.style.opacity = 0;
+			});
 
 			const onCompleteAnim = () => {
-				if(currentActivePanel) currentActivePanel.style.display = 'none';
-				const newPanel = document.getElementById(targetId);
+				if(currentActivePanel) {
+					currentActivePanel.style.display = 'none';
+					currentActivePanel.style.opacity = 0;
+				}
+				
 				if(newPanel) {
 					newPanel.style.display = 'block';
 					if (carouselsObjects[targetId]) {
@@ -484,6 +503,7 @@ function pho_menu_grid_render_shortcode( $atts ) {
 			
 			clearInterval(autoPlayTimer);
 			autoPlayTimer = setInterval(() => {
+				if (document.hidden) return; // Prevent firing if tab is hidden
 				if(tabButtons.length > 0) {
 					let nextIndex = (currentTabIndex + 1) % tabButtons.length;
 					switchTab(tabButtons[nextIndex]);
@@ -509,9 +529,17 @@ function pho_menu_grid_render_shortcode( $atts ) {
 			if (el) {
 				el.addEventListener('mouseenter', stopAutoPlay);
 				el.addEventListener('mouseleave', startAutoPlay);
-				// Also pause on touch events
 				el.addEventListener('touchstart', stopAutoPlay, {passive: true});
 				el.addEventListener('touchend', startAutoPlay, {passive: true});
+			}
+		});
+
+		// Fix glitch when switching browser tabs
+		document.addEventListener("visibilitychange", () => {
+			if (document.hidden) {
+				stopAutoPlay();
+			} else {
+				startAutoPlay();
 			}
 		});
 
