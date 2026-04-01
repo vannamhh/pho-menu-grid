@@ -114,6 +114,10 @@ function pho_menu_grid_register_scripts() {
 		wp_register_style( 'pho-flickity', 'https://unpkg.com/flickity@2/dist/flickity.min.css', array(), '2.0', 'all' );
 		wp_register_script( 'pho-flickity', 'https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js', array(), '2.0', true );
 	}
+
+	// Register Core Plugin Assets
+	wp_register_style( 'pho-menu-grid', PHO_MENU_GRID_URL . 'assets/css/pho-menu-grid.css', array(), '1.0.0', 'all' );
+	wp_register_script( 'pho-menu-grid', PHO_MENU_GRID_URL . 'assets/js/pho-menu-grid.js', array(), '1.0.0', true );
 }
 
 /**

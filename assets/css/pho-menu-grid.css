@@ -1,0 +1,214 @@
+/* 
+ * Pho Menu Grid Styles
+ * Loads for the Menu Element component in Flatsome UX Builder.
+ */
+
+.pho-menu-grid-wrapper {
+	/* These variables are overridden via inline style from shortcode dynamically */
+	--primary-color: #0e603b;
+	--accent-color: #f39c12;
+}
+
+.pho-menu-grid-wrapper .menu-nav-container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 3rem auto 1rem;
+	padding: 0 1rem;
+}
+
+.pho-menu-grid-wrapper .menu-nav {
+	display: flex;
+	justify-content: flex-start;
+	gap: 2rem;
+	overflow-x: auto;
+	padding-bottom: 1.5rem;
+	border-bottom: 2px dashed #e0e0e0;
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none;    /* Firefox */
+}
+
+.pho-menu-grid-wrapper .menu-nav::-webkit-scrollbar {
+	display: none; /* Chrome, Safari and Opera */
+}
+
+@media (min-width: 1024px) {
+	.pho-menu-grid-wrapper .menu-nav {
+		justify-content: center;
+	}
+}
+
+.pho-menu-grid-wrapper .nav-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+	color: var(--primary-color);
+	font-weight: 800;
+	text-transform: uppercase;
+	font-size: 0.9rem;
+	letter-spacing: 0.05em;
+	white-space: nowrap;
+	transition: all 0.3s ease;
+	opacity: 0.7;
+	background: none;
+	border: none;
+	outline: none;
+}
+
+.pho-menu-grid-wrapper .nav-item:hover {
+	opacity: 1;
+}
+
+.pho-menu-grid-wrapper .nav-item.active {
+	color: var(--accent-color);
+	opacity: 1;
+}
+
+.pho-menu-grid-wrapper .nav-icon {
+	margin-top: 0.75rem;
+	width: 48px;
+	height: 48px;
+	fill: currentColor;
+	transition: transform 0.3s ease;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 40px; /* if using Flatsome icon class */
+}
+
+.pho-menu-grid-wrapper .nav-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+.pho-menu-grid-wrapper .nav-item.active .nav-icon {
+	transform: scale(1.1);
+}
+
+/* Tab Panels */
+.pho-menu-grid-wrapper .tab-panels-wrapper {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto 3rem;
+	position: relative;
+}
+
+.pho-menu-grid-wrapper .tab-panel {
+	display: none;
+	width: 100%;
+	padding: 2rem 0;
+}
+
+.pho-menu-grid-wrapper .carousel {
+	background: transparent;
+}
+
+.pho-menu-grid-wrapper .flickity-viewport {
+	overflow: visible !important;
+}
+
+.pho-menu-grid-wrapper .carousel-cell {
+	width: 100%; /* Mobile */
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1rem;
+}
+
+@media (min-width: 768px) {
+	.pho-menu-grid-wrapper .carousel-cell {
+		width: 50%; /* Tablet */
+	}
+}
+
+@media (min-width: 1024px) {
+	.pho-menu-grid-wrapper .carousel-cell {
+		width: 33.333%; /* Desktop */
+	}
+}
+
+/* Dish Elements */
+.pho-menu-grid-wrapper .plate-bg {
+	width: 280px;
+	height: 280px;
+	background-color: #ffffff;
+	border-radius: 50%;
+	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 1.5rem;
+	transition: transform 0.3s ease;
+}
+
+.pho-menu-grid-wrapper .carousel-cell:hover .plate-bg {
+	transform: translateY(-10px);
+}
+
+.pho-menu-grid-wrapper .dish-img {
+	width: 250px;
+	height: 250px;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 6px solid #1c1c1c;
+}
+
+.pho-menu-grid-wrapper .dish-title {
+	color: var(--primary-color);
+	font-size: 1.1rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	text-align: center;
+	margin: 0 0 0.5rem 0;
+	letter-spacing: 0.02em;
+}
+
+.pho-menu-grid-wrapper .dish-rating {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.pho-menu-grid-wrapper .stars {
+	color: var(--accent-color);
+	font-size: 0.9rem;
+	letter-spacing: 2px;
+}
+
+.pho-menu-grid-wrapper .review-text {
+	color: #777;
+	font-size: 0.75rem;
+	font-weight: 600;
+	font-style: italic;
+}
+
+.pho-menu-grid-wrapper .item-separator {
+	width: 50%;
+	height: 2px;
+	border-bottom: 2px dashed #e0e0e0;
+	margin-top: 0.5rem;
+}
+
+.pho-menu-grid-wrapper .item-url {
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	color: inherit;
+}
+
+/* Flickity Prev/Next Buttons Customization */
+.pho-menu-grid-wrapper .flickity-prev-next-button {
+	background: #ffffff;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+	color: var(--primary-color);
+	width: 44px;
+	height: 44px;
+}
+
+.pho-menu-grid-wrapper .flickity-prev-next-button:hover {
+	background: var(--accent-color);
+	color: white;
+}

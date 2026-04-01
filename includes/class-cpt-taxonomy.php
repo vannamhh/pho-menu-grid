@@ -170,10 +170,9 @@ function pho_menu_category_add_new_meta_field() {
 add_action( 'pho_menu_category_edit_form_fields', 'pho_menu_category_edit_meta_field', 10, 2 );
 function pho_menu_category_edit_meta_field( $term ) {
 	$term_id = $term->term_id;
-	$term_meta = get_option( "taxonomy_$term_id" );
-	$tab_icon  = $term_meta['tab_icon'] ?? '';
-	$use_svg   = $term_meta['use_svg'] ?? '';
-	$svg_code  = $term_meta['svg_code'] ?? '';
+	$tab_icon  = get_term_meta( $term_id, 'tab_icon', true );
+	$use_svg   = get_term_meta( $term_id, 'use_svg', true );
+	$svg_code  = get_term_meta( $term_id, 'svg_code', true );
 	?>
 	<tr class="form-field">
 		<th scope="row" valign="top"><label for="term_meta_tab_icon"><?php esc_html_e( 'Tab Icon (Class)', 'pho-menu-grid' ); ?></label></th>
@@ -202,30 +201,19 @@ function pho_menu_category_edit_meta_field( $term ) {
 add_action( 'edited_pho_menu_category', 'pho_menu_category_save_term_meta', 10, 2 );
 add_action( 'create_pho_menu_category', 'pho_menu_category_save_term_meta', 10, 2 );
 function pho_menu_category_save_term_meta( $term_id ) {
-	if ( isset( $_POST['term_meta'] ) ) {
-		$term_meta = get_option( "taxonomy_$term_id" );
-		$cat_keys = array_keys( $_POST['term_meta'] );
-		foreach ( $cat_keys as $key ) {
-			if ( isset( $_POST['term_meta'][$key] ) ) {
-				if($key === 'svg_code') {
-					// SVG content needs special sanitization or allowed raw (since it's an admin field)
-					// We'll use wp_kses_post but it might strip attributes in svg.
-					// Often we just allow safe html or bypass for admin roles.
-					if(current_user_can('manage_options')) {
-						$term_meta[$key] = trim( wp_unslash( $_POST['term_meta'][$key] ) );
-					}
-				} else {
-					$term_meta[$key] = sanitize_text_field( wp_unslash( $_POST['term_meta'][$key] ) );
-				}
-			}
-		}
-
-		// Handle checkbox
-		if ( ! isset( $_POST['term_meta']['use_svg'] ) ) {
-			$term_meta['use_svg'] = '0';
-		}
-
-		// Save the option array.
-		update_option( "taxonomy_$term_id", $term_meta );
+	if ( ! isset( $_POST['term_meta'] ) ) {
+		return;
 	}
+
+	$tab_icon = isset( $_POST['term_meta']['tab_icon'] ) ? sanitize_text_field( wp_unslash( $_POST['term_meta']['tab_icon'] ) ) : '';
+	$use_svg  = isset( $_POST['term_meta']['use_svg'] ) ? '1' : '0';
+	
+	$svg_code = '';
+	if ( isset( $_POST['term_meta']['svg_code'] ) && current_user_can( 'manage_options' ) ) {
+		$svg_code = trim( wp_unslash( $_POST['term_meta']['svg_code'] ) );
+	}
+
+	update_term_meta( $term_id, 'tab_icon', $tab_icon );
+	update_term_meta( $term_id, 'use_svg', $use_svg );
+	update_term_meta( $term_id, 'svg_code', $svg_code );
 }
