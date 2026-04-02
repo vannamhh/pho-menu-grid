@@ -95,3 +95,76 @@ function pho_menu_grid_ux_builder_component() {
 		),
 	) );
 }
+
+add_action( 'ux_builder_setup', 'pho_menu_showcase_ux_builder_component' );
+function pho_menu_showcase_ux_builder_component() {
+	add_ux_builder_shortcode( 'pho_menu_showcase', array(
+		'name'      => __( 'Pho Menu Showcase', 'pho-menu-grid' ),
+		'category'  => __( 'Content', 'pho-menu-grid' ),
+		'info'      => '{{ primary_color }}',
+		'icon'      => 'dashicons-star-filled',
+		'priority'  => 10,
+		'options'   => array(
+			'content_options'  => array(
+				'type'    => 'group',
+				'heading' => __( 'Content', 'pho-menu-grid' ),
+				'options' => array(
+					'categories'         => array(
+						'type'       => 'select',
+						'heading'    => 'Select Categories (Tabs)',
+						'param_name' => 'categories',
+						'config'     => array(
+							'multiple'    => true,
+							'placeholder' => 'Select categories...',
+							'termSelect'  => array(
+								'post_type' => 'pho_menu_item',
+								'taxonomies' => 'pho_menu_category',
+							),
+						),
+						'description' => 'Select the Menu Categories to display.',
+					),
+					'posts_per_category' => array(
+						'type'        => 'slider',
+						'heading'     => __( 'Items per Category', 'pho-menu-grid' ),
+						'default'     => 10,
+						'max'         => 30,
+						'min'         => -1,
+						'step'        => 1,
+						'description' => '-1 to show all items.',
+					),
+					'default_tab'        => array(
+						'type'        => 'slider',
+						'heading'     => __( 'Default Active Tab', 'pho-menu-grid' ),
+						'default'     => 1,
+						'max'         => 10,
+						'min'         => 1,
+						'step'        => 1,
+					),
+					'order_btn_text' => array(
+						'type'    => 'textfield',
+						'heading' => __( 'Order Button Text', 'pho-menu-grid' ),
+						'default' => 'ORDER',
+					),
+				),
+			),
+			'colors_options'   => array(
+				'type'    => 'group',
+				'heading' => __( 'Style & Colors', 'pho-menu-grid' ),
+				'options' => array(
+					'primary_color' => array(
+						'type'    => 'colorpicker',
+						'heading' => __( 'Primary Color', 'pho-menu-grid' ),
+						'default' => '#0e603b',
+						'alpha'   => true,
+					),
+					'accent_color'  => array(
+						'type'    => 'colorpicker',
+						'heading' => __( 'Accent Color', 'pho-menu-grid' ),
+						'default' => '#f39c12',
+						'alpha'   => true,
+					),
+				),
+			),
+		),
+	) );
+}

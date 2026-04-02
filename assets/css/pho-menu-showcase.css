@@ -1,0 +1,377 @@
+/* ==========================================================================
+   Pho Menu Showcase Styles (Zig-Zag Edition)
+   ========================================================================== */
+
+.pho-menu-showcase-wrapper {
+	--primary-color: var(--menu-primary-color, #0e603b);
+	--accent-color: var(--menu-accent-color, #f39c12);
+	font-family: inherit;
+}
+
+/* Tabs */
+.pho-menu-showcase-wrapper .menu-nav-container {
+	width: 100%;
+	margin: 2rem auto 3rem;
+}
+.pho-menu-showcase-wrapper .menu-nav {
+	display: flex;
+	justify-content: flex-start;
+	gap: 2.8rem;
+	overflow-x: auto;
+	border-bottom: 2px dashed #e0e0e0;
+	padding-bottom: 1.4rem;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.pho-menu-showcase-wrapper .menu-nav::-webkit-scrollbar {
+	display: none;
+}
+@media (min-width: 1024px) {
+	.pho-menu-showcase-wrapper .menu-nav {
+		justify-content: space-between;
+		border-bottom: none;
+	}
+}
+
+.pho-menu-showcase-wrapper .nav-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+	color: var(--primary-color);
+	font-weight: 700;
+	text-transform: uppercase;
+	font-size: 1rem;
+	letter-spacing: -0.012em;
+	transition: all 0.3s ease;
+	background: none;
+	border: none;
+	outline: none;
+	padding: 0;
+	margin: 0;
+	gap: 1.5rem;
+}
+.pho-menu-showcase-wrapper .nav-item:hover,
+.pho-menu-showcase-wrapper .nav-item.active {
+	color: var(--accent-color);
+}
+.pho-menu-showcase-wrapper .nav-icon {
+	width: 48px;
+	height: 48px;
+	fill: currentColor;
+	transition: transform 0.3s ease;
+}
+.pho-menu-showcase-wrapper .nav-item.active .nav-icon {
+	transform: scale(1.1);
+}
+
+/* Showcase List & Items */
+.pho-menu-showcase-wrapper .tab-panel {
+	animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; transform: translateY(15px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.showcase-list {
+	display: flex;
+	flex-direction: column;
+	gap: 5rem;
+	padding: 2rem 0;
+}
+
+.showcase-item {
+	display: flex;
+	flex-direction: column;
+	gap: 3rem;
+	align-items: center;
+	padding-bottom: 3rem;
+	border-bottom: 1px dashed #eee;
+}
+.showcase-item:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+@media (min-width: 768px) {
+	.showcase-item {
+		flex-direction: row;
+		gap: 8%;
+		justify-content: space-between;
+	}
+	/* ZIG ZAG MAGIC */
+	.showcase-item:nth-child(even) {
+		flex-direction: row-reverse;
+	}
+	.showcase-col-text, .showcase-col-image {
+		width: 46%;
+	}
+}
+
+/* Text Content */
+.showcase-col-text {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.dish-title-en {
+	color: var(--primary-color);
+	font-size: 2.2rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	margin: 0 0 0.5rem 0;
+	line-height: 1.1;
+}
+.dish-title-vn {
+	color: var(--accent-color);
+	font-size: 1.3rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	margin: 0 0 1rem 0;
+}
+.showcase-item .dish-rating {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	margin-top: 0.5rem;
+}
+.showcase-item .stars {
+	color: var(--accent-color);
+	font-weight: bold;
+	font-size: 1.1rem;
+}
+.showcase-item .review-text {
+	color: #666;
+	font-size: 0.9rem;
+	font-style: italic;
+}
+.showcase-item .item-separator {
+	width: 100%;
+	height: 2px;
+	background: linear-gradient(to right, #a9a9a9 14px, transparent 0) 0 center / 28px 100% repeat-x;
+	margin: 1.5rem 0;
+}
+.dish-description {
+	color: #555;
+	line-height: 1.6;
+	margin-bottom: 1.5rem;
+	font-size: 1rem;
+}
+
+/* Pricing */
+.price-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+	margin-bottom: 2rem;
+	align-self: flex-end; /* Align right context */
+	margin-top: -3rem; /* Visually slide next to description if short */
+}
+@media (max-width: 767px) {
+	.price-wrapper {
+		align-self: flex-start;
+		margin-top: 0;
+	}
+}
+.price-wrapper .pill {
+	background-color: var(--primary-color);
+	color: var(--accent-color);
+	font-weight: 800;
+	font-size: 1.8rem;
+	padding: 0.6rem 1.8rem;
+	border-radius: 50px;
+	display: inline-block;
+}
+.price-wrapper .strike {
+	color: #999;
+	text-decoration: line-through;
+	font-size: 1.4rem;
+	font-weight: 600;
+}
+
+/* Accordion */
+.accordion-group {
+	width: 100%;
+	margin-bottom: 2rem;
+}
+/* Dropdown style to float above content */
+.accordion-group.dropdown-style {
+	position: relative;
+	z-index: 50;
+}
+.accordion-item {
+	margin-bottom: 1rem;
+}
+.accordion-header {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: #fff;
+	border: 1px solid #eee;
+	border-radius: 8px;
+	padding: 1.2rem 1.5rem;
+	cursor: pointer;
+	color: var(--primary-color);
+	font-weight: 700;
+	transition: opacity 0.3s;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+}
+.accordion-header:hover {
+	background: #fafafa;
+}
+.accordion-icon {
+	font-size: 1.5rem;
+	color: var(--accent-color);
+	background: #fdf3e5;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	line-height: 1;
+}
+.accordion-item.is-open .accordion-icon {
+	content: "-";
+}
+.accordion-item.is-open .accordion-header {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.accordion-content {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.4s ease;
+	background: #fff;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	z-index: 99;
+	box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+	border-radius: 0 0 8px 8px;
+}
+.accordion-content-inner {
+	padding: 1.5rem;
+	border-left: 2px solid var(--accent-color);
+}
+.dietary-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+.dietary-list li {
+	font-size: 0.95rem;
+	color: #444;
+	line-height: 1.5;
+}
+.dietary-list strong {
+	color: var(--accent-color);
+}
+
+/* Buttons */
+.action-buttons {
+	width: 100%;
+	margin-top: 1rem;
+}
+.btn-order {
+	display: inline-block;
+	background-color: var(--primary-color);
+	color: var(--accent-color);
+	font-weight: 800;
+	font-size: 1.3rem;
+	text-transform: uppercase;
+	padding: 1rem 3rem;
+	border-radius: 8px;
+	text-decoration: none;
+	transition: all 0.3s ease;
+	text-align: center;
+	width: 100%;
+}
+.btn-order:hover {
+	background-color: #0a462b;
+	color: #fff !important;
+}
+@media (min-width: 768px) {
+	.btn-order {
+		width: 100%;
+	}
+}
+
+/* Image Column & Circular Wavy */
+.showcase-col-image {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	width: 100%;
+}
+.rings-wrapper {
+	position: absolute;
+	width: 115%;
+	height: 115%;
+	z-index: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.product-image-wrapper {
+	position: relative;
+	width: 100%;
+	max-width: 500px;
+	aspect-ratio: 1;
+	z-index: 2;
+}
+.dish-product-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 6px solid #1c1c1c;
+	box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* Base Stickers */
+.dish-sticker {
+	position: absolute;
+	top: 5%;
+	right: 0%;
+	width: 110px;
+	height: 110px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	z-index: 3;
+	animation: floatSticker 4s ease-in-out infinite;
+}
+@media (max-width: 767px) {
+	.dish-sticker {
+		width: 80px;
+		height: 80px;
+	}
+}
+@keyframes floatSticker {
+	0%, 100% { transform: translateY(0) rotate(8deg); }
+	50% { transform: translateY(-15px) rotate(-8deg); }
+}
+
+/* Fallback SVG Stickers */
+.sticker-chefs_choice {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L95 25 L95 75 L50 95 L5 75 L5 25 Z" fill="%23f39c12"/><text x="50" y="45" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">CHEF\'S</text><text x="50" y="65" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">CHOICE</text></svg>');
+}
+.sticker-must_try {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L95 25 L95 75 L50 95 L5 75 L5 25 Z" fill="%231e824c"/><text x="50" y="45" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">MUST</text><text x="50" y="65" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">TRY</text></svg>');
+}
+.sticker-best_seller {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L95 25 L95 75 L50 95 L5 75 L5 25 Z" fill="%23d35400"/><text x="50" y="45" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">BEST</text><text x="50" y="65" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">SELLER</text></svg>');
+}

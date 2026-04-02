@@ -96,47 +96,181 @@ function pho_menu_grid_meta_box_callback( $post ) {
 	$star_rating = get_post_meta( $post->ID, 'pho_star_rating', true );
 	$review_text = get_post_meta( $post->ID, 'pho_review_text', true );
 
+	// Showcase Fields
+	$vn_name     = get_post_meta( $post->ID, 'pho_vn_name', true );
+	$description = get_post_meta( $post->ID, 'pho_description', true );
+	$price       = get_post_meta( $post->ID, 'pho_price', true );
+	$sale_price  = get_post_meta( $post->ID, 'pho_sale_price', true );
+	$sticker     = get_post_meta( $post->ID, 'pho_sticker', true );
+	$dietary     = get_post_meta( $post->ID, 'pho_dietary_guide_json', true );
+
 	echo '<table class="form-table">';
+	
+	echo '<tr>';
+	echo '<th><label for="pho_vn_name">' . esc_html__( 'Vietnamese Name', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><input type="text" id="pho_vn_name" name="pho_vn_name" value="' . esc_attr( $vn_name ) . '" class="regular-text" placeholder="BÁNH MÌ THỊT NƯỚNG" /></td>';
+	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label for="pho_description">' . esc_html__( 'Description', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><textarea id="pho_description" name="pho_description" rows="4" class="large-text">' . esc_textarea( $description ) . '</textarea></td>';
+	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label for="pho_price">' . esc_html__( 'Regular Price', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><input type="text" id="pho_price" name="pho_price" value="' . esc_attr( $price ) . '" class="regular-text" placeholder="e.g. $18.00" /></td>';
+	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label for="pho_sale_price">' . esc_html__( 'Sale Price (Optional)', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><input type="text" id="pho_sale_price" name="pho_sale_price" value="' . esc_attr( $sale_price ) . '" class="regular-text" placeholder="e.g. $15.00" /></td>';
+	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label for="pho_sticker">' . esc_html__( 'Sticker / Badge', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><select id="pho_sticker" name="pho_sticker">';
+	echo '<option value="" ' . selected($sticker, '', false) . '>None</option>';
+	echo '<option value="chefs_choice" ' . selected($sticker, 'chefs_choice', false) . '>Chef\'s Choice</option>';
+	echo '<option value="must_try" ' . selected($sticker, 'must_try', false) . '>Must Try</option>';
+	echo '<option value="best_seller" ' . selected($sticker, 'best_seller', false) . '>Best Seller</option>';
+	echo '</select></td>';
+	echo '</tr>';
+
 	echo '<tr>';
 	echo '<th><label for="pho_item_link">' . esc_html__( 'Item Link (URL)', 'pho-menu-grid' ) . '</label></th>';
 	echo '<td><input type="text" id="pho_item_link" name="pho_item_link" value="' . esc_attr( $item_link ) . '" class="regular-text" placeholder="https:// or /some-page" /></td>';
 	echo '</tr>';
 
 	echo '<tr>';
-	echo '<th><label for="pho_star_rating">' . esc_html__( 'Star Rating (Number)', 'pho-menu-grid' ) . '</label></th>';
+	echo '<th><label for="pho_star_rating">' . esc_html__( 'Star Rating', 'pho-menu-grid' ) . '</label></th>';
 	echo '<td><input type="text" id="pho_star_rating" name="pho_star_rating" value="' . esc_attr( $star_rating ) . '" class="regular-text" placeholder="e.g. 4.5" /></td>';
 	echo '</tr>';
 
 	echo '<tr>';
 	echo '<th><label for="pho_review_text">' . esc_html__( 'Review Text', 'pho-menu-grid' ) . '</label></th>';
-	echo '<td><input type="text" id="pho_review_text" name="pho_review_text" value="' . esc_attr( $review_text ) . '" class="regular-text" placeholder="e.g. (250+ Google Reviews)" /></td>';
+	echo '<td><input type="text" id="pho_review_text" name="pho_review_text" value="' . esc_attr( $review_text ) . '" class="regular-text" placeholder="(250+ Google Reviews)" /></td>';
 	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label>' . esc_html__( 'Dietary Guide', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td>';
+	echo '<div id="pho_dietary_repeater_wrap">';
+	echo '<input type="hidden" id="pho_dietary_guide_json" name="pho_dietary_guide_json" value="' . esc_attr( $dietary ) . '" />';
+	echo '<div id="pho_dietary_rows" style="display:flex;flex-direction:column;gap:10px;"></div>';
+	echo '<button type="button" class="button button-secondary" id="pho_add_dietary_row" style="margin-top:10px;">+ Add Guide Row</button>';
+	echo '</div>';
+	echo '</td>';
+	echo '</tr>';
+
 	echo '</table>';
+
+	?>
+	<script>
+	document.addEventListener("DOMContentLoaded", function() {
+		const wrap = document.getElementById("pho_dietary_repeater_wrap");
+		if(!wrap) return;
+
+		const hiddenInput = document.getElementById("pho_dietary_guide_json");
+		const rowsContainer = document.getElementById("pho_dietary_rows");
+		const addBtn = document.getElementById("pho_add_dietary_row");
+
+		let existingData = [];
+		try {
+			existingData = JSON.parse(hiddenInput.value || "[]");
+		} catch(e) {
+			existingData = [];
+		}
+
+		function renderRows() {
+			rowsContainer.innerHTML = "";
+			existingData.forEach((row, index) => {
+				const rowDiv = document.createElement("div");
+				rowDiv.style.display = "flex";
+				rowDiv.style.gap = "10px";
+				rowDiv.style.alignItems = "flex-start";
+
+				const labelInput = document.createElement("input");
+				labelInput.type = "text";
+				labelInput.placeholder = "Label (e.g. Gluten-Free Option)";
+				labelInput.value = row.label || "";
+				labelInput.style.flex = "1";
+				labelInput.addEventListener("input", (e) => {
+					existingData[index].label = e.target.value;
+					syncInput();
+				});
+
+				const textInput = document.createElement("textarea");
+				textInput.placeholder = "Description text...";
+				textInput.value = row.text || "";
+				textInput.style.flex = "2";
+				textInput.rows = 2;
+				textInput.addEventListener("input", (e) => {
+					existingData[index].text = e.target.value;
+					syncInput();
+				});
+
+				const rmvBtn = document.createElement("button");
+				rmvBtn.type = "button";
+				rmvBtn.className = "button button-link";
+				rmvBtn.style.color = "#d63638";
+				rmvBtn.innerText = "Remove";
+				rmvBtn.addEventListener("click", () => {
+					existingData.splice(index, 1);
+					syncInput();
+					renderRows();
+				});
+
+				rowDiv.appendChild(labelInput);
+				rowDiv.appendChild(textInput);
+				rowDiv.appendChild(rmvBtn);
+				rowsContainer.appendChild(rowDiv);
+			});
+		}
+
+		function syncInput() {
+			hiddenInput.value = JSON.stringify(existingData);
+		}
+
+		addBtn.addEventListener("click", () => {
+			existingData.push({label: "", text: ""});
+			syncInput();
+			renderRows();
+		});
+
+		renderRows();
+	});
+	</script>
+	<?php
 }
 
 add_action( 'save_post', 'pho_menu_grid_save_meta_box_data' );
 function pho_menu_grid_save_meta_box_data( $post_id ) {
-	if ( ! isset( $_POST['pho_menu_item_meta_box_nonce'] ) ) {
+	if ( ! isset( $_POST['pho_menu_item_meta_box_nonce'] ) || ! wp_verify_nonce( $_POST['pho_menu_item_meta_box_nonce'], 'pho_menu_item_meta_box' ) ) {
 		return;
 	}
-	if ( ! wp_verify_nonce( $_POST['pho_menu_item_meta_box_nonce'], 'pho_menu_item_meta_box' ) ) {
-		return;
-	}
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-		return;
-	}
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+	if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+
+	$fields_to_save = array(
+		'pho_item_link', 'pho_star_rating', 'pho_review_text', 
+		'pho_vn_name', 'pho_price', 'pho_sale_price', 'pho_sticker'
+	);
+
+	foreach($fields_to_save as $field) {
+		if ( isset( $_POST[$field] ) ) {
+			update_post_meta( $post_id, $field, sanitize_text_field( wp_unslash( $_POST[$field] ) ) );
+		}
 	}
 
-	if ( isset( $_POST['pho_item_link'] ) ) {
-		update_post_meta( $post_id, 'pho_item_link', sanitize_text_field( wp_unslash( $_POST['pho_item_link'] ) ) );
+	if ( isset( $_POST['pho_description'] ) ) {
+		update_post_meta( $post_id, 'pho_description', sanitize_textarea_field( wp_unslash( $_POST['pho_description'] ) ) );
 	}
-	if ( isset( $_POST['pho_star_rating'] ) ) {
-		update_post_meta( $post_id, 'pho_star_rating', sanitize_text_field( wp_unslash( $_POST['pho_star_rating'] ) ) );
-	}
-	if ( isset( $_POST['pho_review_text'] ) ) {
-		update_post_meta( $post_id, 'pho_review_text', sanitize_text_field( wp_unslash( $_POST['pho_review_text'] ) ) );
+
+	if ( isset( $_POST['pho_dietary_guide_json'] ) ) {
+		$json = wp_unslash( $_POST['pho_dietary_guide_json'] );
+		if(json_decode($json) !== null) {
+			update_post_meta( $post_id, 'pho_dietary_guide_json', $json );
+		}
 	}
 }
 

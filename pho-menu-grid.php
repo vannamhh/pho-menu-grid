@@ -118,6 +118,9 @@ function pho_menu_grid_register_scripts() {
 	// Register Core Plugin Assets
 	wp_register_style( 'pho-menu-grid', PHO_MENU_GRID_URL . 'assets/css/pho-menu-grid.css', array(), '1.0.0', 'all' );
 	wp_register_script( 'pho-menu-grid', PHO_MENU_GRID_URL . 'assets/js/pho-menu-grid.js', array(), '1.0.0', true );
+
+	wp_register_style( 'pho-menu-showcase', PHO_MENU_GRID_URL . 'assets/css/pho-menu-showcase.css', array(), '1.0.0', 'all' );
+	wp_register_script( 'pho-menu-showcase', PHO_MENU_GRID_URL . 'assets/js/pho-menu-showcase.js', array(), '1.0.0', true );
 }
 
 /**
@@ -126,3 +129,4 @@ function pho_menu_grid_register_scripts() {
 require_once PHO_MENU_GRID_PATH . 'includes/class-cpt-taxonomy.php';
 require_once PHO_MENU_GRID_PATH . 'includes/class-ux-builder.php';
 require_once PHO_MENU_GRID_PATH . 'includes/shortcode-menu-grid.php';
+require_once PHO_MENU_GRID_PATH . 'includes/shortcode-menu-showcase.php';
