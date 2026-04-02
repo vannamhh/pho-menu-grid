@@ -96,7 +96,7 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		$svg_code  = ! empty( $term_meta['svg_code'] ) ? trim( $term_meta['svg_code'] ) : '';
 
 		printf(
-			'<button class="nav-item %1$s" data-target="%2$s">',
+			'<button type="button" class="nav-item %1$s" data-target="%2$s">',
 			esc_attr( $active_class ),
 			esc_attr( $target_id )
 		);

@@ -142,7 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		// Bind events
 		tabButtons.forEach(btn => {
-			btn.addEventListener('click', () => {
+			btn.addEventListener('click', (e) => {
+				e.preventDefault();
 				switchTab(btn);
 				startAutoPlay();
 			});

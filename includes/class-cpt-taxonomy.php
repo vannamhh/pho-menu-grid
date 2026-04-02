@@ -99,7 +99,7 @@ function pho_menu_grid_meta_box_callback( $post ) {
 	echo '<table class="form-table">';
 	echo '<tr>';
 	echo '<th><label for="pho_item_link">' . esc_html__( 'Item Link (URL)', 'pho-menu-grid' ) . '</label></th>';
-	echo '<td><input type="url" id="pho_item_link" name="pho_item_link" value="' . esc_attr( $item_link ) . '" class="regular-text" placeholder="https://" /></td>';
+	echo '<td><input type="text" id="pho_item_link" name="pho_item_link" value="' . esc_attr( $item_link ) . '" class="regular-text" placeholder="https:// or /some-page" /></td>';
 	echo '</tr>';
 
 	echo '<tr>';

@@ -12,23 +12,26 @@
 .pho-menu-grid-wrapper .menu-nav-container {
 	width: 100%;
 	max-width: 1200px;
-	margin: 3rem auto 1rem;
-	padding: 0 1rem;
+	margin: 2.8rem auto 1.4rem;
+	padding: 0 1.4rem;
 }
 
 .pho-menu-grid-wrapper .menu-nav {
 	display: flex;
 	justify-content: flex-start;
-	gap: 2rem;
+	gap: 2.8rem;
 	overflow-x: auto;
-	padding-bottom: 1.5rem;
+	padding-bottom: 1.4rem;
 	border-bottom: 2px dashed #e0e0e0;
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none;    /* Firefox */
+	-ms-overflow-style: none;
+	/* IE and Edge */
+	scrollbar-width: none;
+	/* Firefox */
 }
 
 .pho-menu-grid-wrapper .menu-nav::-webkit-scrollbar {
-	display: none; /* Chrome, Safari and Opera */
+	display: none;
+	/* Chrome, Safari and Opera */
 }
 
 @media (min-width: 1024px) {
@@ -43,13 +46,13 @@
 	align-items: center;
 	cursor: pointer;
 	color: var(--primary-color);
-	font-weight: 800;
+	font-weight: 700;
 	text-transform: uppercase;
 	font-size: 0.9rem;
 	letter-spacing: 0.05em;
 	white-space: nowrap;
 	transition: all 0.3s ease;
-	opacity: 0.7;
+	opacity: 1;
 	background: none;
 	border: none;
 	outline: none;
@@ -65,7 +68,6 @@
 }
 
 .pho-menu-grid-wrapper .nav-icon {
-	margin-top: 0.75rem;
 	width: 48px;
 	height: 48px;
 	fill: currentColor;
@@ -73,7 +75,8 @@
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
-	font-size: 40px; /* if using Flatsome icon class */
+	font-size: 40px;
+	/* if using Flatsome icon class */
 }
 
 .pho-menu-grid-wrapper .nav-icon svg {
@@ -88,7 +91,6 @@
 /* Tab Panels */
 .pho-menu-grid-wrapper .tab-panels-wrapper {
 	width: 100%;
-	max-width: 1200px;
 	margin: 0 auto 3rem;
 	position: relative;
 }
@@ -96,7 +98,6 @@
 .pho-menu-grid-wrapper .tab-panel {
 	display: none;
 	width: 100%;
-	padding: 2rem 0;
 }
 
 .pho-menu-grid-wrapper .carousel {
@@ -108,22 +109,25 @@
 }
 
 .pho-menu-grid-wrapper .carousel-cell {
-	width: 100%; /* Mobile */
+	width: 100%;
+	/* Mobile */
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: 1rem;
+	padding: 1.4rem;
 }
 
 @media (min-width: 768px) {
 	.pho-menu-grid-wrapper .carousel-cell {
-		width: 50%; /* Tablet */
+		width: 50%;
+		/* Tablet */
 	}
 }
 
 @media (min-width: 1024px) {
 	.pho-menu-grid-wrapper .carousel-cell {
-		width: 33.333%; /* Desktop */
+		width: 33.333%;
+		/* Desktop */
 	}
 }
 
@@ -137,7 +141,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-bottom: 1.5rem;
+	margin-bottom: 1.4rem;
 	transition: transform 0.3s ease;
 }
 
@@ -168,7 +172,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: 0.5rem;
-	margin-bottom: 1rem;
+	margin-bottom: 1.4rem;
 }
 
 .pho-menu-grid-wrapper .stars {
