@@ -13,20 +13,61 @@
 	width: 100%;
 	max-width: 1200px;
 	margin: 2.8rem auto 1.4rem;
-	padding: 0 1.4rem;
+	padding: 0;
+	/* Remove internal padding to allow full edge swipe */
+}
+
+@media (min-width: 1024px) {
+	.pho-menu-grid-wrapper .menu-nav-container {
+		padding: 0 1.4rem;
+	}
 }
 
 .pho-menu-grid-wrapper .menu-nav {
 	display: flex;
 	justify-content: flex-start;
-	gap: 2.8rem;
+	gap: 2rem;
 	overflow-x: auto;
 	padding-bottom: 1.4rem;
 	border-bottom: 2px dashed #e0e0e0;
+
+	/* Smooth Touch Scrolling */
+	-webkit-overflow-scrolling: touch;
+	scroll-snap-type: x mandatory;
+	scroll-padding-left: 1.5rem;
+	scroll-padding-right: 1.5rem;
+	padding-left: 1.5rem;
+	padding-right: 1.5rem;
 	-ms-overflow-style: none;
 	/* IE and Edge */
 	scrollbar-width: none;
 	/* Firefox */
+
+	cursor: grab;
+	/* Visually indicate scrollability (handled by JS state classes) */
+	-webkit-mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+	mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+}
+
+.pho-menu-grid-wrapper .menu-nav.mouse-dragging {
+	cursor: grabbing;
+	scroll-snap-type: none;
+}
+
+.pho-menu-grid-wrapper .menu-nav.no-scroll {
+	-webkit-mask-image: none;
+	mask-image: none;
+	cursor: auto;
+}
+
+.pho-menu-grid-wrapper .menu-nav.is-start {
+	-webkit-mask-image: linear-gradient(to right, black, black calc(100% - 40px), transparent);
+	mask-image: linear-gradient(to right, black, black calc(100% - 40px), transparent);
+}
+
+.pho-menu-grid-wrapper .menu-nav.is-end {
+	-webkit-mask-image: linear-gradient(to right, transparent, black 40px, black);
+	mask-image: linear-gradient(to right, transparent, black 40px, black);
 }
 
 .pho-menu-grid-wrapper .menu-nav::-webkit-scrollbar {
@@ -37,6 +78,9 @@
 @media (min-width: 1024px) {
 	.pho-menu-grid-wrapper .menu-nav {
 		justify-content: center;
+		gap: 2.8rem;
+		padding-left: 0;
+		padding-right: 0;
 	}
 }
 
@@ -56,6 +100,12 @@
 	background: none;
 	border: none;
 	outline: none;
+	flex-shrink: 0;
+	scroll-snap-align: center;
+	pointer-events: auto;
+	/* ensure child click hits even if parent drags */
+	user-select: none;
+	/* easier dragging */
 }
 
 .pho-menu-grid-wrapper .nav-item:hover {
@@ -102,6 +152,7 @@
 
 .pho-menu-grid-wrapper .carousel {
 	background: transparent;
+	flex-wrap: wrap;
 }
 
 .pho-menu-grid-wrapper .flickity-viewport {
@@ -115,19 +166,21 @@
 	flex-direction: column;
 	align-items: center;
 	padding: 1.4rem;
+
 }
 
-@media (min-width: 768px) {
+@media (min-width: 550px) {
 	.pho-menu-grid-wrapper .carousel-cell {
-		width: 50%;
-		/* Tablet */
+		width: calc(33.333% - 1.4rem);
+		/* Desktop */
 	}
 }
 
-@media (min-width: 1024px) {
+
+@media (max-width: 549px) {
 	.pho-menu-grid-wrapper .carousel-cell {
-		width: 33.333%;
-		/* Desktop */
+		width: 100%;
+		/* Tablet */
 	}
 }
 

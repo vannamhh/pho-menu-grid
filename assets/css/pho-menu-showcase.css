@@ -12,17 +12,50 @@
 .pho-menu-showcase-wrapper .menu-nav-container {
 	width: 100%;
 	margin: 2rem auto 3rem;
+	padding: 0; /* Remove internal padding for full edge swipe */
 }
 .pho-menu-showcase-wrapper .menu-nav {
 	display: flex;
 	justify-content: flex-start;
-	gap: 2.8rem;
+	gap: 2rem;
 	overflow-x: auto;
 	border-bottom: 2px dashed #e0e0e0;
 	padding-bottom: 1.4rem;
+	
+	/* Smooth Touch Scrolling */
+	-webkit-overflow-scrolling: touch;
+	scroll-snap-type: x mandatory;
+	scroll-padding-left: 1.5rem;
+	scroll-padding-right: 1.5rem;
+	padding-left: 1.5rem;
+	padding-right: 1.5rem;
+	
 	-ms-overflow-style: none;
 	scrollbar-width: none;
+
+	cursor: grab;
+	-webkit-mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+	mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
 }
+
+.pho-menu-showcase-wrapper .menu-nav.mouse-dragging {
+	cursor: grabbing;
+	scroll-snap-type: none;
+}
+.pho-menu-showcase-wrapper .menu-nav.no-scroll {
+	-webkit-mask-image: none;
+	mask-image: none;
+	cursor: auto;
+}
+.pho-menu-showcase-wrapper .menu-nav.is-start {
+	-webkit-mask-image: linear-gradient(to right, black, black calc(100% - 40px), transparent);
+	mask-image: linear-gradient(to right, black, black calc(100% - 40px), transparent);
+}
+.pho-menu-showcase-wrapper .menu-nav.is-end {
+	-webkit-mask-image: linear-gradient(to right, transparent, black 40px, black);
+	mask-image: linear-gradient(to right, transparent, black 40px, black);
+}
+
 .pho-menu-showcase-wrapper .menu-nav::-webkit-scrollbar {
 	display: none;
 }
@@ -30,6 +63,9 @@
 	.pho-menu-showcase-wrapper .menu-nav {
 		justify-content: space-between;
 		border-bottom: none;
+		gap: 2.8rem;
+		padding-left: 0;
+		padding-right: 0;
 	}
 }
 
@@ -50,6 +86,10 @@
 	padding: 0;
 	margin: 0;
 	gap: 1.5rem;
+	flex-shrink: 0;
+	scroll-snap-align: center;
+	pointer-events: auto;
+	user-select: none;
 }
 .pho-menu-showcase-wrapper .nav-item:hover,
 .pho-menu-showcase-wrapper .nav-item.active {
