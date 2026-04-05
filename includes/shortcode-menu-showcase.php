@@ -165,6 +165,23 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 
 	?>
 	<div class="showcase-item">
+		<!-- IMAGE COLUMN -->
+		<div class="showcase-col-image">
+			<!-- Vòng xoáy bên dưới -->
+			<div class="rings-wrapper"></div>
+			
+			<!-- Hình sản phẩm nằm đè lên trên -->
+			<div class="product-image-wrapper">
+				<?php if ( $image_url ) : ?>
+					<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $en_name ); ?>" class="dish-product-img">
+				<?php endif; ?>
+				
+				<?php if ( ! empty( $sticker ) ) : ?>
+					<div class="dish-sticker sticker-<?php echo esc_attr( $sticker ); ?>">
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
 		<!-- TEXT COLUMN -->
 		<div class="showcase-col-text">
 			<h2 class="dish-title-en"><?php echo esc_html( $en_name ); ?></h2>
@@ -186,18 +203,29 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 			<?php if ( ! empty( $description ) ) : ?>
 				<div class="dish-description">
 					<?php echo wp_kses_post( wpautop($description) ); ?>
+					<!-- Price Wrapper -->
+					<div class="price-wrapper">
+						<?php
+						$format_price = function($p) {
+							$p = trim($p);
+							if ( preg_match('/^([^\d\s]+)\s*(.*)$/u', $p, $matches) ) {
+								return '<span class="currency-symbol">' . esc_html( trim($matches[1]) ) . '</span><span class="amount">' . esc_html( trim($matches[2]) ) . '</span>';
+							}
+							return esc_html($p);
+						};
+						?>
+						<?php if ( ! empty( $sale_price ) ) : ?>
+							<span class="regular-price strike"><?php echo esc_html( $price ); ?></span>
+							<span class="sale-price pill"><?php echo $format_price( $sale_price ); ?></span>
+						<?php elseif ( ! empty( $price ) ) : ?>
+							<span class="regular-price pill"><?php echo $format_price( $price ); ?></span>
+						<?php endif; ?>
+					</div>
+
 				</div>
 			<?php endif; ?>
 
-			<!-- Price Wrapper -->
-			<div class="price-wrapper">
-				<?php if ( ! empty( $sale_price ) ) : ?>
-					<span class="regular-price strike"><?php echo esc_html( $price ); ?></span>
-					<span class="sale-price pill"><?php echo esc_html( $sale_price ); ?></span>
-				<?php elseif ( ! empty( $price ) ) : ?>
-					<span class="regular-price pill"><?php echo esc_html( $price ); ?></span>
-				<?php endif; ?>
-			</div>
+			
 
 			<!-- Accordions (Dietary Guide) -->
 			<?php if ( ! empty( $dietary ) ) : ?>
@@ -231,23 +259,7 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 			</div>
 		</div>
 
-		<!-- IMAGE COLUMN -->
-		<div class="showcase-col-image">
-			<!-- Vòng xoáy bên dưới -->
-			<div class="rings-wrapper"></div>
-			
-			<!-- Hình sản phẩm nằm đè lên trên -->
-			<div class="product-image-wrapper">
-				<?php if ( $image_url ) : ?>
-					<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $en_name ); ?>" class="dish-product-img">
-				<?php endif; ?>
-				
-				<?php if ( ! empty( $sticker ) ) : ?>
-					<div class="dish-sticker sticker-<?php echo esc_attr( $sticker ); ?>">
-					</div>
-				<?php endif; ?>
-			</div>
-		</div>
+		
 	</div>
 	<?php
 }
