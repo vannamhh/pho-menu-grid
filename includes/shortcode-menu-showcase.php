@@ -18,6 +18,8 @@ function pho_menu_showcase_render_shortcode( $atts ) {
 			'order_btn_text'     => 'ORDER',
 			'primary_color'      => '#0e603b',
 			'accent_color'       => '#f39c12',
+			'class'              => '',
+			'visibility'         => '',
 		),
 		$atts,
 		'pho_menu_showcase'
@@ -57,9 +59,18 @@ function pho_menu_showcase_render_shortcode( $atts ) {
 		esc_attr( $atts['accent_color'] )
 	);
 
+	// Advanced Classes
+	$wrapper_classes = 'pho-menu-showcase-wrapper';
+	if ( ! empty( $atts['class'] ) ) {
+		$wrapper_classes .= ' ' . esc_attr( $atts['class'] );
+	}
+	if ( ! empty( $atts['visibility'] ) ) {
+		$wrapper_classes .= ' ' . esc_attr( $atts['visibility'] );
+	}
+
 	ob_start();
 	?>
-	<div class="pho-menu-showcase-wrapper" style="<?php echo $inline_styles; ?>" data-default-tab="<?php echo esc_attr( $default_tab_index ); ?>">
+	<div class="<?php echo esc_attr( $wrapper_classes ); ?>" style="<?php echo $inline_styles; ?>" data-default-tab="<?php echo esc_attr( $default_tab_index ); ?>">
 		
 		<!-- NAVIGATION TABS -->
 		<div class="menu-nav-container">

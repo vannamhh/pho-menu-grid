@@ -1,9 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
-	
-	const wrappers = document.querySelectorAll('.pho-menu-showcase-wrapper');
+window.initPhoMenuShowcase = function() {
+	const wrappers = document.querySelectorAll('.pho-menu-showcase-wrapper:not(.initialized)');
 
 	wrappers.forEach(wrapper => {
-		
+		wrapper.classList.add('initialized');
 		// 1. Tab Switching
 		const tabButtons = wrapper.querySelectorAll('.nav-item');
 		const panels = wrapper.querySelectorAll('.tab-panel');
@@ -130,5 +129,21 @@ document.addEventListener("DOMContentLoaded", () => {
 			initDragScrollAndMask(navWrapper);
 		}
 	});
+};
 
+document.addEventListener("DOMContentLoaded", window.initPhoMenuShowcase);
+
+// Observe DOM for elements added via UX Builder or AJAX
+const observerShowcase = new MutationObserver((mutations) => {
+	let shouldInit = false;
+	for (let m of mutations) {
+		if (m.addedNodes.length > 0) {
+			shouldInit = true;
+			break;
+		}
+	}
+	if (shouldInit) {
+		window.initPhoMenuShowcase();
+	}
 });
+observerShowcase.observe(document.body, { childList: true, subtree: true });

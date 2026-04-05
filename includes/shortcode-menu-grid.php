@@ -15,6 +15,8 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		'auto_play_tabs'     => 3000,
 		'primary_color'      => '#0e603b',
 		'accent_color'       => '#f39c12',
+		'class'              => '',
+		'visibility'         => '',
 	), $atts );
 
 	$el_id = 'pho-menu-grid-' . uniqid();
@@ -71,10 +73,20 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		esc_attr( $atts['accent_color'] )
 	);
 
+	// Advanced Classes
+	$wrapper_classes = 'pho-menu-grid-wrapper';
+	if ( ! empty( $atts['class'] ) ) {
+		$wrapper_classes .= ' ' . esc_attr( $atts['class'] );
+	}
+	if ( ! empty( $atts['visibility'] ) ) {
+		$wrapper_classes .= ' ' . esc_attr( $atts['visibility'] );
+	}
+
 	// Start Wrapper with data attributes for JS
 	printf(
-		'<div id="%1$s" class="pho-menu-grid-wrapper" style="%2$s" data-auto-play="%3$d" data-default-tab="%4$d">',
+		'<div id="%1$s" class="%2$s" style="%3$s" data-auto-play="%4$d" data-default-tab="%5$d">',
 		esc_attr( $el_id ),
+		esc_attr( $wrapper_classes ),
 		$inline_style,
 		(int) $atts['auto_play_tabs'],
 		$default_index

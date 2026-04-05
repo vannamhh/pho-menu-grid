@@ -121,6 +121,19 @@ function pho_menu_grid_register_scripts() {
 
 	wp_register_style( 'pho-menu-showcase', PHO_MENU_GRID_URL . 'assets/css/pho-menu-showcase.css', array(), '1.0.0', 'all' );
 	wp_register_script( 'pho-menu-showcase', PHO_MENU_GRID_URL . 'assets/js/pho-menu-showcase.js', array(), '1.0.0', true );
+
+	// Auto-enqueue in UX Builder Preview Iframe to ensure assets are present before AJAX loads the shortcodes
+	if ( isset( $_GET['uxb_iframe'] ) || is_customize_preview() ) {
+		if ( $load_gsap ) wp_enqueue_script( 'pho-gsap' );
+		if ( $load_flickity ) {
+			wp_enqueue_style( 'pho-flickity' );
+			wp_enqueue_script( 'pho-flickity' );
+		}
+		wp_enqueue_style( 'pho-menu-grid' );
+		wp_enqueue_script( 'pho-menu-grid' );
+		wp_enqueue_style( 'pho-menu-showcase' );
+		wp_enqueue_script( 'pho-menu-showcase' );
+	}
 }
 
 /**

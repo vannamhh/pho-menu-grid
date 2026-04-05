@@ -2,13 +2,12 @@
  * Pho Menu Grid Javascript
  * Handles Flatsome UX Builder element logic: Flickity Carousels, GSAP Transitions, AutoPlay.
  */
-document.addEventListener("DOMContentLoaded", () => {
-	
-	const wrappers = document.querySelectorAll('.pho-menu-grid-wrapper');
+window.initPhoMenuGrid = function() {
+	const wrappers = document.querySelectorAll('.pho-menu-grid-wrapper:not(.initialized)');
 	if (wrappers.length === 0) return;
 
 	wrappers.forEach(wrapper => {
-		
+		wrapper.classList.add('initialized');
 		// Parse settings from data attributes
 		const autoPlayDuration = parseInt(wrapper.getAttribute('data-auto-play')) || 0;
 		const defaultTabIndex = parseInt(wrapper.getAttribute('data-default-tab')) || 0;
@@ -245,4 +244,21 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Trigger initially
 		startAutoPlay();
 	});
+};
+
+document.addEventListener("DOMContentLoaded", window.initPhoMenuGrid);
+
+// Observe DOM for elements added via UX Builder or AJAX
+const observer = new MutationObserver((mutations) => {
+	let shouldInit = false;
+	for (let m of mutations) {
+		if (m.addedNodes.length > 0) {
+			shouldInit = true;
+			break;
+		}
+	}
+	if (shouldInit) {
+		window.initPhoMenuGrid();
+	}
 });
+observer.observe(document.body, { childList: true, subtree: true });

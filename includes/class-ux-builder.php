@@ -92,6 +92,33 @@ function pho_menu_grid_ux_builder_component() {
 					),
 				),
 			),
+
+			// Tab: Advanced
+			'advanced_options' => array(
+				'type'    => 'group',
+				'heading' => __( 'Advanced', 'pho-menu-grid' ),
+				'options' => array(
+					'class' => array(
+						'type'    => 'textfield',
+						'heading' => __( 'Class', 'pho-menu-grid' ),
+						'default' => '',
+					),
+					'visibility' => array(
+						'type'    => 'select',
+						'heading' => __( 'Visibility', 'pho-menu-grid' ),
+						'default' => '',
+						'options' => array(
+							''                => 'Visible',
+							'hide-for-small'  => 'Hide for Small',
+							'hide-for-medium' => 'Hide for Medium',
+							'hide-for-large'  => 'Hide for Large',
+							'show-for-small'  => 'Show for Small Only',
+							'show-for-medium' => 'Show for Medium Only',
+							'show-for-large'  => 'Show for Large Only',
+						)
+					),
+				),
+			),
 		),
 	) );
 }
@@ -162,6 +189,33 @@ function pho_menu_showcase_ux_builder_component() {
 						'heading' => __( 'Accent Color', 'pho-menu-grid' ),
 						'default' => '#f39c12',
 						'alpha'   => true,
+					),
+				),
+			),
+
+			// Tab: Advanced
+			'advanced_options' => array(
+				'type'    => 'group',
+				'heading' => __( 'Advanced', 'pho-menu-grid' ),
+				'options' => array(
+					'class' => array(
+						'type'    => 'textfield',
+						'heading' => __( 'Class', 'pho-menu-grid' ),
+						'default' => '',
+					),
+					'visibility' => array(
+						'type'    => 'select',
+						'heading' => __( 'Visibility', 'pho-menu-grid' ),
+						'default' => '',
+						'options' => array(
+							''                => 'Visible',
+							'hide-for-small'  => 'Hide for Small',
+							'hide-for-medium' => 'Hide for Medium',
+							'hide-for-large'  => 'Hide for Large',
+							'show-for-small'  => 'Show for Small Only',
+							'show-for-medium' => 'Show for Medium Only',
+							'show-for-large'  => 'Show for Large Only',
+						)
 					),
 				),
 			),
