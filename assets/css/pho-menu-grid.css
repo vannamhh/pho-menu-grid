@@ -199,7 +199,7 @@
 }
 
 .pho-menu-grid-wrapper .carousel-cell:hover .plate-bg {
-	transform: translateY(-10px);
+	transform: scale(1.05);
 }
 
 .pho-menu-grid-wrapper .dish-img {
