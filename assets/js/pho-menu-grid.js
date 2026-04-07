@@ -67,8 +67,14 @@ window.initPhoMenuGrid = function() {
 			if (currentActiveBtn) currentActiveBtn.classList.remove('active');
 			btn.classList.add('active');
 
-			// Scroll active tab into view (smooth snap to center)
-			btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+			// Scroll active tab into view horizontally without affecting vertical page scroll
+			const nav = btn.closest('.menu-nav');
+			if (nav) {
+				const navRect = nav.getBoundingClientRect();
+				const btnRect = btn.getBoundingClientRect();
+				const scrollLeft = nav.scrollLeft + (btnRect.left - navRect.left) - (navRect.width / 2) + (btnRect.width / 2);
+				nav.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+			}
 
 			const hasGSAP = typeof gsap !== 'undefined';
 			const newPanel = document.getElementById(targetId);

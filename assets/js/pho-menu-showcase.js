@@ -19,8 +19,14 @@ window.initPhoMenuShowcase = function() {
 				tabButtons.forEach(b => b.classList.remove('active'));
 				btn.classList.add('active');
 
-				// Scroll active tab into view (smooth snap to center)
-				btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+				// Scroll active tab into view horizontally without affecting vertical page scroll
+				const nav = btn.closest('.menu-nav');
+				if (nav) {
+					const navRect = nav.getBoundingClientRect();
+					const btnRect = btn.getBoundingClientRect();
+					const scrollLeft = nav.scrollLeft + (btnRect.left - navRect.left) - (navRect.width / 2) + (btnRect.width / 2);
+					nav.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+				}
 
 				// Hide all panels
 				panels.forEach(p => p.style.display = 'none');
