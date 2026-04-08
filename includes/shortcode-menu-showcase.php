@@ -164,6 +164,9 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 	$star_rating = get_post_meta( $post_id, 'pho_star_rating', true );
 	$review_text = get_post_meta( $post_id, 'pho_review_text', true );
 
+	$secondary_btn_label = get_post_meta( $post_id, 'pho_secondary_btn_label', true );
+	$secondary_btn_link  = get_post_meta( $post_id, 'pho_secondary_btn_link', true );
+
 	$image_id  = get_post_thumbnail_id();
 	$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'large' ) : '';
 
@@ -267,6 +270,9 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 			<!-- Buttons -->
 			<div class="action-buttons">
 				<a href="<?php echo esc_url( $item_link ); ?>" class="btn-order"><?php echo esc_html( $order_btn_text ); ?></a>
+				<?php if ( ! empty( $secondary_btn_label ) ) : ?>
+					<a href="<?php echo esc_url( $secondary_btn_link ); ?>" class="btn-secondary-action"><?php echo esc_html( $secondary_btn_label ); ?></a>
+				<?php endif; ?>
 			</div>
 		</div>
 

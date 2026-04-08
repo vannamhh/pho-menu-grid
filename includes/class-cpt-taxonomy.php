@@ -103,6 +103,8 @@ function pho_menu_grid_meta_box_callback( $post ) {
 	$sale_price  = get_post_meta( $post->ID, 'pho_sale_price', true );
 	$sticker     = get_post_meta( $post->ID, 'pho_sticker', true );
 	$dietary     = get_post_meta( $post->ID, 'pho_dietary_guide_json', true );
+	$secondary_btn_label   = get_post_meta( $post->ID, 'pho_secondary_btn_label', true );
+	$secondary_btn_link   = get_post_meta( $post->ID, 'pho_secondary_btn_link', true );
 
 	echo '<table class="form-table">';
 	
@@ -139,6 +141,16 @@ function pho_menu_grid_meta_box_callback( $post ) {
 	echo '<tr>';
 	echo '<th><label for="pho_item_link">' . esc_html__( 'Item Link (URL)', 'pho-menu-grid' ) . '</label></th>';
 	echo '<td><input type="text" id="pho_item_link" name="pho_item_link" value="' . esc_attr( $item_link ) . '" class="regular-text" placeholder="https:// or /some-page" /></td>';
+	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label for="pho_secondary_btn_label">' . esc_html__( 'Secondary Button Label', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><input type="text" id="pho_secondary_btn_label" name="pho_secondary_btn_label" value="' . esc_attr( $secondary_btn_label ) . '" class="regular-text" placeholder="DISCOVER MORE..." /></td>';
+	echo '</tr>';
+
+	echo '<tr>';
+	echo '<th><label for="pho_secondary_btn_link">' . esc_html__( 'Secondary Button Link', 'pho-menu-grid' ) . '</label></th>';
+	echo '<td><input type="text" id="pho_secondary_btn_link" name="pho_secondary_btn_link" value="' . esc_attr( $secondary_btn_link ) . '" class="regular-text" placeholder="https:// order online url" /></td>';
 	echo '</tr>';
 
 	echo '<tr>';
@@ -253,7 +265,8 @@ function pho_menu_grid_save_meta_box_data( $post_id ) {
 
 	$fields_to_save = array(
 		'pho_item_link', 'pho_star_rating', 'pho_review_text', 
-		'pho_vn_name', 'pho_price', 'pho_sale_price', 'pho_sticker'
+		'pho_vn_name', 'pho_price', 'pho_sale_price', 'pho_sticker',
+		'pho_secondary_btn_label', 'pho_secondary_btn_link'
 	);
 
 	foreach($fields_to_save as $field) {
