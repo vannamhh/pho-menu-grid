@@ -168,7 +168,6 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 	$secondary_btn_link  = get_post_meta( $post_id, 'pho_secondary_btn_link', true );
 
 	$image_id  = get_post_thumbnail_id();
-	$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'large' ) : '';
 
 	// Decode repeater
 	$dietary = [];
@@ -186,8 +185,22 @@ function pho_menu_showcase_render_single_item( $order_btn_text ) {
 			
 			<!-- Hình sản phẩm nằm đè lên trên -->
 			<div class="product-image-wrapper">
-				<?php if ( $image_url ) : ?>
-					<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $en_name ); ?>" class="dish-product-img">
+				<?php if ( $image_id ) : ?>
+					<?php
+					/**
+					 * Use wp_get_attachment_image() to output a standards-compliant <img> tag
+					 * with proper srcset, sizes, width, height, and loading="lazy" attributes.
+					 */
+					echo wp_get_attachment_image(
+						$image_id,
+						'large',
+						false,
+						array(
+							'class' => 'dish-product-img',
+							'alt'   => esc_attr( $en_name ),
+						)
+					);
+					?>
 				<?php endif; ?>
 				
 				<?php if ( ! empty( $sticker ) ) : ?>

@@ -194,16 +194,31 @@ function pho_menu_grid_render_single_item() {
 	$star_display = is_numeric( $star_rating ) ? '★ ' . $star_rating : $star_rating;
 
 	// Thumbnail
-	$img_url = get_the_post_thumbnail_url( $post_id, 'large' );
-	if ( ! $img_url ) {
-		$img_url = 'https://images.unsplash.com/photo-1582878826629-29b7ad1cb438?auto=format&fit=crop&q=80&w=400';
-	}
+	$thumbnail_id = get_post_thumbnail_id( $post_id );
 
 	echo '<div class="carousel-cell">';
-	
+
 	echo '<a href="' . esc_url( $item_link ) . '" class="item-url">';
 	echo '<div class="plate-bg">';
-	echo '<img src="' . esc_url( $img_url ) . '" alt="' . esc_attr( get_the_title() ) . '" class="dish-img">';
+
+	if ( $thumbnail_id ) {
+		/**
+		 * Use wp_get_attachment_image() to output a standards-compliant <img> tag
+		 * with proper srcset, sizes, width, height, and loading="lazy" attributes.
+		 */
+		echo wp_get_attachment_image(
+			$thumbnail_id,
+			'large',
+			false,
+			array(
+				'class' => 'dish-img',
+				'alt'   => esc_attr( get_the_title() ),
+			)
+		);
+	} else {
+		// Fallback placeholder image when no thumbnail is set.
+		echo '<img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cb438?auto=format&fit=crop&q=80&w=400" alt="' . esc_attr( get_the_title() ) . '" class="dish-img">';
+	}
 	echo '</div>';
 	echo '<h3 class="dish-title">' . esc_html( get_the_title() ) . '</h3>';
 	echo '</a>'; 
