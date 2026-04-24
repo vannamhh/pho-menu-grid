@@ -320,6 +320,16 @@ function pho_menu_category_edit_meta_field( $term ) {
 	$tab_icon  = get_term_meta( $term_id, 'tab_icon', true );
 	$use_svg   = get_term_meta( $term_id, 'use_svg', true );
 	$svg_code  = get_term_meta( $term_id, 'svg_code', true );
+
+	// Fallback to legacy options
+	if ( empty( $tab_icon ) && empty( $use_svg ) && empty( $svg_code ) ) {
+		$legacy_meta = get_option( "taxonomy_$term_id" );
+		if ( is_array( $legacy_meta ) ) {
+			$tab_icon = isset( $legacy_meta['tab_icon'] ) ? $legacy_meta['tab_icon'] : '';
+			$use_svg  = isset( $legacy_meta['use_svg'] ) ? $legacy_meta['use_svg'] : '';
+			$svg_code = isset( $legacy_meta['svg_code'] ) ? $legacy_meta['svg_code'] : '';
+		}
+	}
 	?>
 	<tr class="form-field">
 		<th scope="row" valign="top"><label for="term_meta_tab_icon"><?php esc_html_e( 'Tab Icon (Class)', 'pho-menu-grid' ); ?></label></th>
@@ -355,12 +365,11 @@ function pho_menu_category_save_term_meta( $term_id ) {
 	$tab_icon = isset( $_POST['term_meta']['tab_icon'] ) ? sanitize_text_field( wp_unslash( $_POST['term_meta']['tab_icon'] ) ) : '';
 	$use_svg  = isset( $_POST['term_meta']['use_svg'] ) ? '1' : '0';
 	
-	$svg_code = '';
-	if ( isset( $_POST['term_meta']['svg_code'] ) && current_user_can( 'manage_options' ) ) {
-		$svg_code = trim( wp_unslash( $_POST['term_meta']['svg_code'] ) );
-	}
-
 	update_term_meta( $term_id, 'tab_icon', $tab_icon );
 	update_term_meta( $term_id, 'use_svg', $use_svg );
-	update_term_meta( $term_id, 'svg_code', $svg_code );
+
+	if ( isset( $_POST['term_meta']['svg_code'] ) && ( current_user_can( 'manage_options' ) || current_user_can( 'unfiltered_html' ) ) ) {
+		$svg_code = trim( wp_unslash( $_POST['term_meta']['svg_code'] ) );
+		update_term_meta( $term_id, 'svg_code', $svg_code );
+	}
 }

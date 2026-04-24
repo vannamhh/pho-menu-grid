@@ -12,6 +12,7 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		'categories'         => '',
 		'posts_per_category' => -1,
 		'default_tab'        => 1,
+		'show_icon'          => 'true',
 		'auto_play_tabs'     => 3000,
 		'primary_color'      => '#0e603b',
 		'accent_color'       => '#f39c12',
@@ -102,10 +103,19 @@ function pho_menu_grid_render_shortcode( $atts ) {
 		$target_id    = 'tab-' . esc_attr( $cat->slug ) . '-' . esc_attr( $el_id );
 		
 		// Term Meta
-		$term_meta = get_option( "taxonomy_" . $cat->term_id );
-		$use_svg   = ! empty( $term_meta['use_svg'] ) ? $term_meta['use_svg'] : '0';
-		$tab_icon  = ! empty( $term_meta['tab_icon'] ) ? $term_meta['tab_icon'] : '';
-		$svg_code  = ! empty( $term_meta['svg_code'] ) ? trim( $term_meta['svg_code'] ) : '';
+		$tab_icon  = get_term_meta( $cat->term_id, 'tab_icon', true );
+		$use_svg   = get_term_meta( $cat->term_id, 'use_svg', true );
+		$svg_code  = get_term_meta( $cat->term_id, 'svg_code', true );
+
+		// Fallback to legacy options
+		if ( empty( $tab_icon ) && empty( $use_svg ) && empty( $svg_code ) ) {
+			$legacy_meta = get_option( "taxonomy_" . $cat->term_id );
+			if ( is_array( $legacy_meta ) ) {
+				$tab_icon = isset( $legacy_meta['tab_icon'] ) ? $legacy_meta['tab_icon'] : '';
+				$use_svg  = isset( $legacy_meta['use_svg'] ) ? $legacy_meta['use_svg'] : '0';
+				$svg_code = isset( $legacy_meta['svg_code'] ) ? trim( $legacy_meta['svg_code'] ) : '';
+			}
+		}
 
 		printf(
 			'<button type="button" class="nav-item %1$s" data-target="%2$s">',
@@ -113,17 +123,20 @@ function pho_menu_grid_render_shortcode( $atts ) {
 			esc_attr( $target_id )
 		);
 		echo '<span>' . esc_html( $cat->name ) . '</span>';
-		echo '<div class="nav-icon">';
-
-		if ( $use_svg === '1' && ! empty( $svg_code ) ) {
-			echo $svg_code; // SVG requires raw output
-		} elseif ( ! empty( $tab_icon ) ) {
-			echo '<i class="' . esc_attr( $tab_icon ) . '"></i>'; 
-		} else {
-			echo '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>';
+		
+		if ( filter_var( $atts['show_icon'], FILTER_VALIDATE_BOOLEAN ) ) {
+			echo '<div class="nav-icon">';
+			if ( $use_svg === '1' && ! empty( $svg_code ) ) {
+				echo $svg_code; // SVG requires raw output
+			} elseif ( ! empty( $tab_icon ) ) {
+				echo '<i class="' . esc_attr( $tab_icon ) . '"></i>'; 
+			} else {
+				echo '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>';
+			}
+			echo '</div>';
 		}
-
-		echo '</div></button>';
+		
+		echo '</button>';
 	}
 	echo '</div></div>';
 

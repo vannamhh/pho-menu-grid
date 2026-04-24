@@ -15,6 +15,7 @@ function pho_menu_showcase_render_shortcode( $atts ) {
 			'categories'         => '',
 			'posts_per_category' => 10,
 			'default_tab'        => 1,
+			'show_icon'          => 'true',
 			'order_btn_text'     => 'ORDER',
 			'primary_color'      => '#0e603b',
 			'accent_color'       => '#f39c12',
@@ -81,7 +82,19 @@ function pho_menu_showcase_render_shortcode( $atts ) {
 					$active_class = ( $index === $default_tab_index ) ? 'active' : '';
 					$term->target_id = $target_id; // Store for later
 					
-					$svg_code = get_term_meta( $term->term_id, 'svg_code', true );
+					$tab_icon  = get_term_meta( $term->term_id, 'tab_icon', true );
+					$use_svg   = get_term_meta( $term->term_id, 'use_svg', true );
+					$svg_code  = get_term_meta( $term->term_id, 'svg_code', true );
+
+					// Fallback to legacy options
+					if ( empty( $tab_icon ) && empty( $use_svg ) && empty( $svg_code ) ) {
+						$legacy_meta = get_option( "taxonomy_" . $term->term_id );
+						if ( is_array( $legacy_meta ) ) {
+							$tab_icon = isset( $legacy_meta['tab_icon'] ) ? $legacy_meta['tab_icon'] : '';
+							$use_svg  = isset( $legacy_meta['use_svg'] ) ? $legacy_meta['use_svg'] : '0';
+							$svg_code = isset( $legacy_meta['svg_code'] ) ? trim( $legacy_meta['svg_code'] ) : '';
+						}
+					}
 					
 					printf(
 						'<button type="button" class="nav-item %1$s" data-target="%2$s">',
@@ -89,13 +102,19 @@ function pho_menu_showcase_render_shortcode( $atts ) {
 						esc_attr( $target_id )
 					);
 					echo '<span>' . esc_html( $term->name ) . '</span>';
-					if ( ! empty( $svg_code ) ) {
-						echo wp_kses( $svg_code, array(
-							'svg'  => array('class' => true, 'viewbox' => true, 'xmlns' => true, 'width' => true, 'height' => true, 'fill' => true),
-							'path' => array('d' => true, 'fill' => true),
-							'g'    => array('fill' => true, 'stroke' => true),
-						) );
+					
+					if ( filter_var( $atts['show_icon'], FILTER_VALIDATE_BOOLEAN ) ) {
+						echo '<div class="nav-icon">';
+						if ( $use_svg === '1' && ! empty( $svg_code ) ) {
+							echo $svg_code; // SVG requires raw output
+						} elseif ( ! empty( $tab_icon ) ) {
+							echo '<i class="' . esc_attr( $tab_icon ) . '"></i>'; 
+						} else {
+							echo '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>';
+						}
+						echo '</div>';
 					}
+					
 					echo '</button>';
 					?>
 				<?php endforeach; ?>

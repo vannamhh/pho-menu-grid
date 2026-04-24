@@ -3,7 +3,7 @@
  * Plugin Name: Pho Menu Grid
  * Plugin URI:  https://ztavi.com/
  * Description: Custom Flatsome UX Builder element for displaying Pho Menu Tabs and Grid (CPT based).
- * Version:     2.1.0
+ * Version:     2.2.0
  * Author:      VN
  * Text Domain: pho-menu-grid
  */

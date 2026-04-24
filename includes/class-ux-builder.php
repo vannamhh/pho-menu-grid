@@ -53,6 +53,11 @@ function pho_menu_grid_ux_builder_component() {
 						'step'        => 1,
 						'description' => 'Which tab should be open by default (1 = first tab, 2 = second...).',
 					),
+					'show_icon'          => array(
+						'type'    => 'checkbox',
+						'heading' => __( 'Show Tab Icons', 'pho-menu-grid' ),
+						'default' => 'true',
+					),
 				),
 			),
 
@@ -166,6 +171,11 @@ function pho_menu_showcase_ux_builder_component() {
 						'max'         => 10,
 						'min'         => 1,
 						'step'        => 1,
+					),
+					'show_icon'          => array(
+						'type'    => 'checkbox',
+						'heading' => __( 'Show Tab Icons', 'pho-menu-grid' ),
+						'default' => 'true',
 					),
 					'order_btn_text' => array(
 						'type'    => 'textfield',
