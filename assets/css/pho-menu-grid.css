@@ -5,8 +5,19 @@
 
 .pho-menu-grid-wrapper {
 	/* These variables are overridden via inline style from shortcode dynamically */
-	--primary-color: #0e603b;
-	--accent-color: #f39c12;
+	--pho-primary-color: #0e603b;
+	--pho-accent-color: #f39c12;
+}
+
+/*
+ * Scoped box-model reset so the element does not depend on the active theme
+ * normalising it.
+ */
+.pho-menu-grid-wrapper,
+.pho-menu-grid-wrapper *,
+.pho-menu-grid-wrapper *::before,
+.pho-menu-grid-wrapper *::after {
+	box-sizing: border-box;
 }
 
 .pho-menu-grid-wrapper .menu-nav-container {
@@ -89,7 +100,7 @@
 	flex-direction: column;
 	align-items: center;
 	cursor: pointer;
-	color: var(--primary-color);
+	color: var(--pho-primary-color);
 	font-weight: 700;
 	text-transform: uppercase;
 	font-size: 0.9rem;
@@ -108,12 +119,13 @@
 	/* easier dragging */
 }
 
-.pho-menu-grid-wrapper .nav-item:hover {
-	opacity: 1;
+.pho-menu-grid-wrapper .nav-item:focus-visible {
+	outline: 2px solid var(--pho-accent-color);
+	outline-offset: 4px;
 }
 
 .pho-menu-grid-wrapper .nav-item.active {
-	color: var(--accent-color);
+	color: var(--pho-accent-color);
 	opacity: 1;
 }
 
@@ -145,18 +157,38 @@
 	position: relative;
 }
 
-.pho-menu-grid-wrapper .tab-panel {
+.pho-menu-grid-wrapper .tab-panel[hidden] {
 	display: none;
+}
+
+.pho-menu-grid-wrapper .tab-panel {
 	width: 100%;
+	opacity: 0;
+	transform: translateY(15px);
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.pho-menu-grid-wrapper .tab-panel.is-active {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pho-menu-grid-wrapper .tab-panel {
+		transition: none;
+		transform: none;
+	}
 }
 
 .pho-menu-grid-wrapper .carousel {
 	background: transparent;
+	display: flex;
 	flex-wrap: wrap;
 }
 
-.pho-menu-grid-wrapper .flickity-viewport {
-	overflow: visible !important;
+.pho-menu-grid-wrapper .carousel-empty {
+	width: 100%;
+	text-align: center;
 }
 
 .pho-menu-grid-wrapper .carousel-cell {
@@ -176,13 +208,6 @@
 	}
 }
 
-
-@media (max-width: 549px) {
-	.pho-menu-grid-wrapper .carousel-cell {
-		width: 100%;
-		/* Tablet */
-	}
-}
 
 /* Dish Elements */
 .pho-menu-grid-wrapper .plate-bg {
@@ -211,7 +236,7 @@
 }
 
 .pho-menu-grid-wrapper .dish-title {
-	color: var(--primary-color);
+	color: var(--pho-primary-color);
 	font-size: 1.1rem;
 	font-weight: 800;
 	text-transform: uppercase;
@@ -228,10 +253,35 @@
 	margin-bottom: 1.4rem;
 }
 
+/*
+ * Star rating: a grey row of five glyphs with a coloured copy clipped on top,
+ * so a fractional score renders as a partly filled star.
+ *
+ * Both layers are block boxes so they share an origin, and line-height is set
+ * tall enough to contain the glyph's ink — the fill clips with overflow:hidden,
+ * which would otherwise cut the stars off vertically as well as horizontally.
+ */
 .pho-menu-grid-wrapper .stars {
-	color: var(--accent-color);
+	position: relative;
+	display: inline-block;
 	font-size: 0.9rem;
 	letter-spacing: 2px;
+	line-height: 1.6;
+	white-space: nowrap;
+}
+
+.pho-menu-grid-wrapper .stars-base {
+	display: block;
+	color: #d9d9d9;
+}
+
+.pho-menu-grid-wrapper .stars-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	line-height: inherit;
+	color: var(--pho-accent-color);
 }
 
 .pho-menu-grid-wrapper .review-text {
@@ -256,16 +306,7 @@
 	color: inherit;
 }
 
-/* Flickity Prev/Next Buttons Customization */
-.pho-menu-grid-wrapper .flickity-prev-next-button {
-	background: #ffffff;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-	color: var(--primary-color);
-	width: 44px;
-	height: 44px;
-}
-
-.pho-menu-grid-wrapper .flickity-prev-next-button:hover {
-	background: var(--accent-color);
-	color: white;
+/* Local stand-in for a missing featured image. */
+.pho-menu-grid-wrapper .dish-img--placeholder {
+	background: repeating-linear-gradient(45deg, #f2f2f2, #f2f2f2 10px, #e8e8e8 10px, #e8e8e8 20px);
 }
