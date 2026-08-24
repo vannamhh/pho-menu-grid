@@ -1,270 +1,77 @@
 /**
- * Pho Menu Grid Javascript
- * Handles Flatsome UX Builder element logic: Flickity Carousels, GSAP Transitions, AutoPlay.
+ * Pho Menu Grid — tab autoplay.
+ *
+ * Tab switching, drag-scroll and the fade transition live in PhoMenuNav and
+ * CSS respectively; this file only adds the autoplay timer.
  */
-window.initPhoMenuGrid = function() {
-	const wrappers = document.querySelectorAll('.pho-menu-grid-wrapper:not(.initialized)');
-	if (wrappers.length === 0) return;
+(function (Nav) {
+	'use strict';
 
-	wrappers.forEach(wrapper => {
-		wrapper.classList.add('initialized');
-		// Parse settings from data attributes
-		const autoPlayDuration = parseInt(wrapper.getAttribute('data-auto-play')) || 0;
-		const defaultTabIndex = parseInt(wrapper.getAttribute('data-default-tab')) || 0;
-		const wrapperId = wrapper.id || '';
+	if (!Nav) {
+		return;
+	}
 
-		// 1. Initialize Carousels
-		const flickityOptions = {
-			cellAlign: 'center',
-			wrapAround: false,
-			pageDots: false,
-			prevNextButtons: true,
-			groupCells: true
-		};
+	var instances = [];
 
-		const carouselsObjects = {};
-		
-		// Check if Flickity is available globally
-		let checkFlickityInterval = setInterval(() => {
-			if (typeof Flickity !== 'undefined') {
-				clearInterval(checkFlickityInterval);
-				initCarousels();
-			}
-		}, 100);
+	/**
+	 * Attach autoplay to one grid instance.
+	 *
+	 * @param {HTMLElement} wrapper Element wrapper.
+	 */
+	function setup(wrapper) {
+		var tabs = Nav.createTabs(wrapper);
 
-		// Stop checking after 5s if not found to prevent memory leak
-		setTimeout(() => { clearInterval(checkFlickityInterval); }, 5000);
-
-		function initCarousels() {
-			const carousels = wrapper.querySelectorAll('.carousel');
-			carousels.forEach(carousel => {
-				const idMatch = carousel.className.match(/carousel-([a-zA-Z0-9_-]+)/);
-				if (idMatch && idMatch[0]) {
-					// The target tab ID matches the suffix of the carousel class pattern
-                    // but we can just map it directly via data attributes or by parent tab-panel ID
-                    const parentPanel = carousel.closest('.tab-panel');
-                    if (parentPanel) {
-                        carouselsObjects[parentPanel.id] = new Flickity(carousel, flickityOptions);
-                    }
-				}
-			});
+		if (!tabs) {
+			return;
 		}
 
-		// 2. Tab Switching Logic
-		const tabButtons = Array.from(wrapper.querySelectorAll('.nav-item'));
-		let currentTabIndex = defaultTabIndex;
-		let autoPlayTimer;
+		var duration = parseInt(wrapper.getAttribute('data-auto-play'), 10) || 0;
 
-		function switchTab(btn) {
-			const targetId = btn.getAttribute('data-target');
-			const currentActiveBtn = wrapper.querySelector('.nav-item.active');
-			const currentActivePanel = wrapper.querySelector('.tab-panel[style*="display: block"]');
-
-			if (currentActiveBtn === btn) return;
-
-			currentTabIndex = tabButtons.indexOf(btn);
-			
-			if (currentActiveBtn) currentActiveBtn.classList.remove('active');
-			btn.classList.add('active');
-
-			// Scroll active tab into view horizontally without affecting vertical page scroll
-			const nav = btn.closest('.menu-nav');
-			if (nav) {
-				const navRect = nav.getBoundingClientRect();
-				const btnRect = btn.getBoundingClientRect();
-				const scrollLeft = nav.scrollLeft + (btnRect.left - navRect.left) - (navRect.width / 2) + (btnRect.width / 2);
-				nav.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-			}
-
-			const hasGSAP = typeof gsap !== 'undefined';
-			const newPanel = document.getElementById(targetId);
-
-			if (hasGSAP) {
-				// Kill any ongoing animations within this wrapper to prevent overlapping glitches
-				gsap.killTweensOf(wrapper.querySelectorAll('.tab-panel'));
-			}
-
-			// Clean up any stray panels that might have gotten stuck
-			wrapper.querySelectorAll('.tab-panel').forEach(p => {
-				if (currentActivePanel && p === currentActivePanel) return;
-				if (newPanel && p === newPanel) return;
-				p.style.display = 'none';
-				p.style.opacity = 0;
-			});
-
-			const onCompleteAnim = () => {
-				if (currentActivePanel) {
-					currentActivePanel.style.display = 'none';
-					currentActivePanel.style.opacity = 0;
-				}
-				
-				if (newPanel) {
-					newPanel.style.display = 'block';
-					if (carouselsObjects[targetId]) {
-						carouselsObjects[targetId].resize();
-					}
-					
-					if (hasGSAP) {
-						gsap.fromTo(newPanel,
-							{ opacity: 0, y: 15 },
-							{ opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
-						);
-					} else {
-						newPanel.style.opacity = 1;
-						newPanel.style.transform = 'translateY(0)';
-					}
-				}
-			};
-
-			if (hasGSAP && currentActivePanel) {
-				gsap.to(currentActivePanel, {
-					opacity: 0,
-					y: 15,
-					duration: 0.2,
-					onComplete: onCompleteAnim
-				});
-			} else {
-				if (currentActivePanel) {
-					currentActivePanel.style.opacity = 0;
-				}
-				onCompleteAnim();
-			}
+		if (duration <= 0 || tabs.buttons.length < 2) {
+			return;
 		}
 
-		function startAutoPlay() {
-			if (autoPlayDuration <= 0) return;
-			
-			clearInterval(autoPlayTimer);
-			autoPlayTimer = setInterval(() => {
-				if (document.hidden) return; // Prevent firing if browser tab is hidden
-				if (tabButtons.length > 0) {
-					let nextIndex = (currentTabIndex + 1) % tabButtons.length;
-					switchTab(tabButtons[nextIndex]);
+		var timer = null;
+
+		function stop() {
+			window.clearInterval(timer);
+			timer = null;
+		}
+
+		function start() {
+			stop();
+
+			timer = window.setInterval(function () {
+				if (!document.hidden) {
+					tabs.next();
 				}
-			}, autoPlayDuration);
+			}, duration);
 		}
 
-		function stopAutoPlay() {
-			clearInterval(autoPlayTimer);
-		}
-
-		// Bind events
-		tabButtons.forEach(btn => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				switchTab(btn);
-				startAutoPlay();
-			});
+		// Pause while the visitor is interacting with the element.
+		['mouseenter', 'focusin'].forEach(function (type) {
+			wrapper.addEventListener(type, stop);
 		});
-
-		const panelsWrapper = wrapper.querySelector('.tab-panels-wrapper');
-		const navWrapper = wrapper.querySelector('.menu-nav');
-
-		[panelsWrapper, navWrapper].forEach(el => {
-			if (el) {
-				el.addEventListener('mouseenter', stopAutoPlay);
-				el.addEventListener('mouseleave', startAutoPlay);
-				el.addEventListener('touchstart', stopAutoPlay, {passive: true});
-				el.addEventListener('touchend', startAutoPlay, {passive: true});
-			}
+		['mouseleave', 'focusout'].forEach(function (type) {
+			wrapper.addEventListener(type, start);
 		});
+		wrapper.addEventListener('touchstart', stop, { passive: true });
+		wrapper.addEventListener('touchend', start, { passive: true });
 
-		// Fix glitch when switching browser tabs natively
-		document.addEventListener("visibilitychange", () => {
+		instances.push({ start: start, stop: stop });
+		start();
+	}
+
+	// Registered once for the whole document rather than once per instance.
+	document.addEventListener('visibilitychange', function () {
+		instances.forEach(function (instance) {
 			if (document.hidden) {
-				stopAutoPlay();
+				instance.stop();
 			} else {
-				startAutoPlay();
+				instance.start();
 			}
 		});
-
-		// 3. Desktop Drag to Scroll & Overflow Mask (Visual Cue)
-		function initDragScrollAndMask(navEl) {
-			if (!navEl) return;
-			let isDown = false;
-			let startX;
-			let scrollLeft;
-			let isDragging = false;
-
-			const updateMask = () => {
-				const maxScroll = navEl.scrollWidth - navEl.clientWidth;
-				if (maxScroll <= 5) {
-					navEl.classList.remove('is-start', 'is-end', 'is-middle');
-					navEl.classList.add('no-scroll');
-					return;
-				}
-				const current = navEl.scrollLeft;
-				navEl.classList.remove('is-start', 'is-end', 'is-middle', 'no-scroll');
-				if (current <= 2) {
-					navEl.classList.add('is-start');
-				} else if (current >= maxScroll - 2) {
-					navEl.classList.add('is-end');
-				} else {
-					navEl.classList.add('is-middle');
-				}
-			};
-
-			navEl.addEventListener('scroll', updateMask, {passive: true});
-			setTimeout(updateMask, 100);
-			window.addEventListener('resize', updateMask);
-
-			navEl.addEventListener('mousedown', (e) => {
-				isDown = true;
-				isDragging = false;
-				navEl.classList.add('mouse-dragging');
-				startX = e.pageX - navEl.offsetLeft;
-				scrollLeft = navEl.scrollLeft;
-			});
-
-			navEl.addEventListener('mouseleave', () => {
-				isDown = false;
-				navEl.classList.remove('mouse-dragging');
-			});
-
-			navEl.addEventListener('mouseup', () => {
-				isDown = false;
-				navEl.classList.remove('mouse-dragging');
-			});
-
-			navEl.addEventListener('mousemove', (e) => {
-				if (!isDown) return;
-				e.preventDefault();
-				const x = e.pageX - navEl.offsetLeft;
-				const walk = (x - startX) * 2;
-				if (Math.abs(walk) > 5) isDragging = true;
-				navEl.scrollLeft = scrollLeft - walk;
-			});
-
-			navEl.addEventListener('click', (e) => {
-				if (isDragging) {
-					e.preventDefault();
-					e.stopPropagation();
-				}
-			}, true);
-		}
-
-		if (navWrapper) {
-			initDragScrollAndMask(navWrapper);
-		}
-
-		// Trigger initially
-		startAutoPlay();
 	});
-};
 
-document.addEventListener("DOMContentLoaded", window.initPhoMenuGrid);
-
-// Observe DOM for elements added via UX Builder or AJAX
-const observer = new MutationObserver((mutations) => {
-	let shouldInit = false;
-	for (let m of mutations) {
-		if (m.addedNodes.length > 0) {
-			shouldInit = true;
-			break;
-		}
-	}
-	if (shouldInit) {
-		window.initPhoMenuGrid();
-	}
-});
-observer.observe(document.body, { childList: true, subtree: true });
+	Nav.register('.pho-menu-grid-wrapper', setup);
+})(window.PhoMenuNav);

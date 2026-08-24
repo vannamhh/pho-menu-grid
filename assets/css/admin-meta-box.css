@@ -1,0 +1,32 @@
+/*
+ * Menu Item meta box — dietary guide repeater.
+ * Replaces the inline style attributes the fields used to carry.
+ */
+
+#pho_dietary_rows {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+#pho_add_dietary_row {
+	margin-top: 10px;
+}
+
+.pho-dietary-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.pho-dietary-row .pho-dietary-label {
+	flex: 1;
+}
+
+.pho-dietary-row .pho-dietary-text {
+	flex: 2;
+}
+
+.pho-dietary-row .pho-dietary-remove {
+	color: #d63638;
+}
