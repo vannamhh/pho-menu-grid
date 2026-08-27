@@ -42,6 +42,24 @@ abstract class AbstractTabbedShortcode {
 	protected const STAR_COUNT = 5;
 
 	/**
+	 * List glyph drawn on the floating picker's toggle.
+	 */
+	private const PICKER_LIST_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>';
+
+	/**
+	 * Chevron drawn on the floating picker's toggle.
+	 *
+	 * Points up: the toggle sits at the foot of the viewport and its sheet opens
+	 * upwards. The stylesheet flips it while the sheet is open.
+	 */
+	private const PICKER_CARET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m18 15-6-6-6 6" /></svg>';
+
+	/**
+	 * Cross drawn on the floating picker's close button.
+	 */
+	private const PICKER_CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12" /></svg>';
+
+	/**
 	 * Per-request instance counter, used to build collision-free DOM ids.
 	 *
 	 * @var int
@@ -302,6 +320,92 @@ abstract class AbstractTabbedShortcode {
 			'<div class="menu-nav-container"><div class="menu-nav" role="tablist" aria-label="%1$s">%2$s</div></div>',
 			esc_attr__( 'Menu categories', 'pho-menu-grid' ),
 			$buttons
+		);
+	}
+
+
+	/**
+	 * Render the floating category picker.
+	 *
+	 * A second control over the same tabs, for a reader already deep inside a
+	 * long panel: the nav bar only exists at the very top of the element, so
+	 * switching category otherwise means scrolling the whole list back up. The
+	 * markup starts `hidden` and is revealed by the script, so a reader without
+	 * JavaScript is never shown a button that cannot do anything.
+	 *
+	 * Each entry carries the same `data-target` as its nav button, which is all
+	 * the script needs to hand the click to the existing tab controller rather
+	 * than run a second one.
+	 *
+	 * @param \WP_Term[]           $terms  Categories.
+	 * @param int                  $active Active index.
+	 * @param string               $uid    Instance id fragment.
+	 * @param array<string, mixed> $atts   Parsed attributes.
+	 * @param array<string, int>   $counts Item count keyed by panel id.
+	 * @return string Safe HTML.
+	 */
+	protected function render_category_picker( array $terms, int $active, string $uid, array $atts, array $counts = array() ): string {
+		$show_icon = Sanitizer::bool( $atts['show_icon'] );
+		$sheet_id  = $uid . '-picker';
+		$items     = '';
+		$label     = '';
+
+		foreach ( array_values( $terms ) as $index => $term ) {
+			$panel_id  = $this->panel_id( $uid, (int) $term->term_id );
+			$is_active = ( $index === $active );
+
+			if ( $is_active ) {
+				$label = $term->name;
+			}
+
+			$items .= sprintf(
+				'<li><button type="button" class="menu-picker-item%1$s" data-target="%2$s"%3$s>',
+				$is_active ? ' is-active' : '',
+				esc_attr( $panel_id ),
+				$is_active ? ' aria-current="true"' : ''
+			);
+
+			if ( $show_icon ) {
+				// Scoped differently from the nav's copy of the same icon:
+				// Icon::render() prefixes the SVG's ids and class names with the
+				// scope, and two copies sharing one prefix would emit duplicate
+				// ids and let one icon's embedded stylesheet repaint the other.
+				$items .= '<span class="menu-picker-icon">' . Icon::render( (int) $term->term_id, $panel_id . '-picker' ) . '</span>';
+			}
+
+			$items .= '<span class="menu-picker-name">' . esc_html( $term->name ) . '</span>';
+
+			if ( isset( $counts[ $panel_id ] ) ) {
+				$items .= '<span class="menu-picker-count">' . esc_html( number_format_i18n( $counts[ $panel_id ] ) ) . '</span>';
+			}
+
+			$items .= '</button></li>';
+		}
+
+		return sprintf(
+			'<div class="menu-picker" hidden>'
+				. '<button type="button" class="menu-picker-toggle" aria-expanded="false" aria-haspopup="dialog" aria-controls="%1$s">'
+					. '<span class="menu-picker-toggle-icon">%2$s</span>'
+					. '<span class="menu-picker-toggle-label">%3$s</span>'
+					. '<span class="menu-picker-toggle-caret">%4$s</span>'
+				. '</button>'
+				. '<div class="menu-picker-backdrop" hidden></div>'
+				. '<div class="menu-picker-sheet" id="%1$s" role="dialog" aria-modal="true" aria-label="%5$s" hidden>'
+					. '<div class="menu-picker-head">'
+						. '<span class="menu-picker-title">%5$s</span>'
+						. '<button type="button" class="menu-picker-close" aria-label="%6$s">%7$s</button>'
+					. '</div>'
+					. '<ul class="menu-picker-list">%8$s</ul>'
+				. '</div>'
+			. '</div>',
+			esc_attr( $sheet_id ),
+			self::PICKER_LIST_SVG,
+			esc_html( $label ),
+			self::PICKER_CARET_SVG,
+			esc_attr__( 'Menu categories', 'pho-menu-grid' ),
+			esc_attr__( 'Close', 'pho-menu-grid' ),
+			self::PICKER_CLOSE_SVG,
+			$items
 		);
 	}
 

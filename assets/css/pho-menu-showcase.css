@@ -14,6 +14,24 @@
 }
 
 /*
+ * Two custom properties the active theme may set on the wrapper:
+ *
+ *   --pho-scroll-offset   Room to leave for a sticky site header when a tab
+ *                         switch scrolls the panel area back to the top. Leave
+ *                         it alone if the theme already sets scroll-padding-top
+ *                         on the scrolling element, as Flatsome does — the two
+ *                         add up rather than replacing one another.
+ *   --pho-picker-bottom   How far above the foot of the viewport the floating
+ *                         picker's toggle sits.
+ *
+ * Only the theme knows how tall its header is or what else it has already
+ * pinned to the bottom of the screen. Deliberately *not* declared here: this
+ * file is enqueued after the theme's stylesheet, so a default on this same
+ * selector would outrank the theme's own value. Every use site carries its
+ * fallback inside var() instead, where nothing can shadow it.
+ */
+
+/*
  * Scoped box-model reset so the element does not depend on the active theme
  * normalising it (.btn-order is width:100% with horizontal padding).
  */
@@ -497,4 +515,283 @@
 }
 .sticker-best_seller {
 	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 5 L95 25 L95 75 L50 95 L5 75 L5 25 Z" fill="%23d35400"/><text x="50" y="45" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">BEST</text><text x="50" y="65" font-family="Arial" font-weight="bold" font-size="14" fill="white" text-anchor="middle">SELLER</text></svg>');
+}
+
+/* ==========================================================================
+   Floating category picker
+
+   A second control over the tabs, for a reader partway down a long panel: the
+   nav bar only exists at the top of the element. Selectors are bare for the
+   reason given at the top of this file — the active theme restyles them from
+   inside a `.pho-menu-showcase-wrapper { ... }` block.
+   ========================================================================== */
+
+/* Panels carry the header allowance so scrollIntoView() lands clear of it. */
+.tab-panels-wrapper {
+	scroll-margin-top: var(--pho-scroll-offset, 0px);
+}
+
+/* Rendered hidden and unhidden by the script, so the button never appears
+   without the behaviour behind it. */
+.menu-picker[hidden] {
+	display: none;
+}
+
+.menu-picker-toggle {
+	position: fixed;
+	bottom: calc(var(--pho-picker-bottom, 1.5rem) + env(safe-area-inset-bottom, 0px));
+	left: 50%;
+	/* Under the 9999 a theme typically gives its own fixed furniture; the sheet
+	   and its backdrop go above that instead, being modal. */
+	z-index: 9998;
+
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+
+	max-width: calc(100vw - 3rem);
+	margin: 0;
+	padding: 1rem 1.6rem;
+	border: none;
+	border-radius: 999px;
+
+	background: var(--pho-primary-color);
+	color: #fff;
+	font: inherit;
+	font-weight: 700;
+	font-size: 1rem;
+	letter-spacing: -0.012em;
+	text-transform: uppercase;
+	cursor: pointer;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+
+	/* Parked below its resting place and faded out rather than display:none, so
+	   it has something to animate from. */
+	opacity: 0;
+	visibility: hidden;
+	transform: translate(-50%, 1.2rem);
+	transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+}
+
+.menu-picker.is-visible .menu-picker-toggle {
+	opacity: 1;
+	visibility: visible;
+	transform: translate(-50%, 0);
+}
+
+.menu-picker-toggle-icon,
+.menu-picker-toggle-caret {
+	display: flex;
+	flex-shrink: 0;
+}
+
+.menu-picker-toggle-icon svg {
+	width: 1.8rem;
+	height: 1.8rem;
+}
+
+.menu-picker-toggle-caret svg {
+	width: 1.6rem;
+	height: 1.6rem;
+	transition: transform 0.25s ease;
+}
+
+.menu-picker.is-open .menu-picker-toggle-caret svg {
+	transform: rotate(180deg);
+}
+
+.menu-picker-toggle-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.menu-picker-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	background: rgba(0, 0, 0, 0.5);
+	opacity: 0;
+	transition: opacity 0.25s ease;
+}
+
+.menu-picker-backdrop[hidden] {
+	display: none;
+}
+
+.menu-picker.is-open .menu-picker-backdrop {
+	opacity: 1;
+}
+
+.menu-picker-sheet {
+	position: fixed;
+	inset: auto 0 0 0;
+	z-index: 10001;
+
+	display: flex;
+	flex-direction: column;
+	max-height: 80vh;
+	padding-bottom: env(safe-area-inset-bottom, 0px);
+	border-radius: 1.6rem 1.6rem 0 0;
+	background: #fff;
+	box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+
+	transform: translateY(100%);
+	transition: transform 0.28s ease;
+}
+
+.menu-picker-sheet[hidden] {
+	display: none;
+}
+
+.menu-picker.is-open .menu-picker-sheet {
+	transform: translateY(0);
+}
+
+.menu-picker-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1.6rem 2rem 1.2rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.menu-picker-title {
+	color: var(--pho-primary-color);
+	font-weight: 700;
+	font-size: 1rem;
+	letter-spacing: -0.012em;
+	text-transform: uppercase;
+}
+
+.menu-picker-close {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	width: 4rem;
+	height: 4rem;
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: none;
+	color: var(--pho-primary-color);
+	cursor: pointer;
+}
+
+.menu-picker-close svg {
+	width: 2rem;
+	height: 2rem;
+}
+
+.menu-picker-list {
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	margin: 0;
+	padding: 0.8rem 0 1.6rem;
+	list-style: none;
+}
+
+.menu-picker-item {
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+	width: 100%;
+	/* A pointer target, not a typographic measure — kept in px so a theme's
+	   root font size cannot shrink it below what a thumb can hit. */
+	min-height: 48px;
+	margin: 0;
+	padding: 0 2rem;
+	border: none;
+	background: none;
+	color: var(--pho-primary-color);
+	font: inherit;
+	font-weight: 700;
+	font-size: 1rem;
+	letter-spacing: -0.012em;
+	text-align: left;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu-picker-item:hover,
+.menu-picker-item:focus-visible {
+	background: rgba(0, 0, 0, 0.04);
+}
+
+.menu-picker-item.is-active {
+	color: var(--pho-accent-color);
+}
+
+.menu-picker-icon {
+	display: flex;
+	flex-shrink: 0;
+	width: 3.2rem;
+	height: 3.2rem;
+}
+
+.menu-picker-icon svg {
+	width: 100%;
+	height: 100%;
+	fill: currentColor;
+}
+
+.menu-picker-name {
+	flex: 1;
+}
+
+.menu-picker-count {
+	flex-shrink: 0;
+	font-weight: 400;
+	opacity: 0.55;
+}
+
+/*
+ * Wide enough that the foot of the screen is not the only reachable place: the
+ * toggle moves to the corner and the sheet becomes a popover hung above it,
+ * rather than a full-width panel across a desktop window.
+ */
+@media (min-width: 1024px) {
+	.menu-picker-toggle {
+		left: auto;
+		right: 3rem;
+		transform: translateY(1.2rem);
+	}
+
+	.menu-picker.is-visible .menu-picker-toggle {
+		transform: translateY(0);
+	}
+
+	.menu-picker-backdrop {
+		background: transparent;
+	}
+
+	.menu-picker-sheet {
+		/* Clears the toggle: its own offset, plus the toggle's height. */
+		inset: auto 3rem calc(var(--pho-picker-bottom, 1.5rem) + 5.6rem) auto;
+		width: 32rem;
+		max-height: 70vh;
+		border-radius: 1.6rem;
+		opacity: 0;
+		transform: translateY(1.2rem);
+		transition: opacity 0.2s ease, transform 0.2s ease;
+	}
+
+	.menu-picker.is-open .menu-picker-sheet {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.menu-picker-toggle,
+	.menu-picker-toggle-caret svg,
+	.menu-picker-backdrop,
+	.menu-picker-sheet,
+	.menu-picker-item {
+		transition: none;
+	}
 }

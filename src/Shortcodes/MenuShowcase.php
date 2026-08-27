@@ -65,6 +65,7 @@ class MenuShowcase extends AbstractTabbedShortcode {
 	protected function render( array $atts, array $terms, int $active, string $uid ): string {
 		$limit     = $this->items_per_tab( $atts );
 		$btn_label = (string) $atts['order_btn_text'];
+		$counts    = array();
 
 		ob_start();
 
@@ -89,6 +90,10 @@ class MenuShowcase extends AbstractTabbedShortcode {
 
 			$query = new \WP_Query( $this->query_args( (int) $term->term_id, $limit ) );
 
+			// The rendered count rather than $term->count, which ignores
+			// posts_per_category and counts non-published items too.
+			$counts[ $panel_id ] = (int) $query->post_count;
+
 			if ( $query->have_posts() ) {
 				while ( $query->have_posts() ) {
 					$query->the_post();
@@ -103,7 +108,12 @@ class MenuShowcase extends AbstractTabbedShortcode {
 			echo '</div></div>';
 		}
 
-		echo '</div></div>';
+		echo '</div>';
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_category_picker() escapes every dynamic part and filters icon SVG through wp_kses.
+		echo $this->render_category_picker( $terms, $active, $uid, $atts, $counts );
+
+		echo '</div>';
 
 		return (string) ob_get_clean();
 	}

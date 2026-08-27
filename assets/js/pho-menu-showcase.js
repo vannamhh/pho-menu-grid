@@ -16,7 +16,11 @@
 	 * @param {HTMLElement} wrapper Element wrapper.
 	 */
 	function setup(wrapper) {
-		Nav.createTabs(wrapper);
+		var tabs = Nav.createTabs(wrapper);
+
+		if (tabs) {
+			Nav.createCategoryPicker(wrapper, tabs);
+		}
 
 		wrapper.querySelectorAll('.accordion-header').forEach(function (header) {
 			header.addEventListener('click', function (e) {

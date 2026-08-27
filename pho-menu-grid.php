@@ -3,7 +3,7 @@
  * Plugin Name: Pho Menu Grid
  * Plugin URI:  https://ztavi.com/
  * Description: Custom Flatsome UX Builder elements for displaying Pho Menu Tabs, Grid and Showcase (CPT based).
- * Version:     3.0.1
+ * Version:     3.1.4
  * Author:      VN
  * License:     GPL-2.0-or-later
  * Text Domain: pho-menu-grid
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'PHO_MENU_GRID_VERSION', '3.0.0' );
+define( 'PHO_MENU_GRID_VERSION', '3.1.4' );
 define( 'PHO_MENU_GRID_FILE', __FILE__ );
 define( 'PHO_MENU_GRID_URL', plugin_dir_url( __FILE__ ) );
 define( 'PHO_MENU_GRID_PATH', plugin_dir_path( __FILE__ ) );

@@ -144,6 +144,63 @@ window.PhoMenuNav = (function () {
 	}
 
 	/**
+	 * Whether the reader has asked for reduced motion.
+	 *
+	 * @return {boolean} True when animation should be skipped.
+	 */
+	function prefersReducedMotion() {
+		return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	}
+
+	/**
+	 * Focus an element without letting the browser scroll to it.
+	 *
+	 * A browser that does not honour `preventScroll` simply behaves as it did
+	 * before.
+	 *
+	 * @param {HTMLElement} el Element to focus.
+	 */
+	function focusQuietly(el) {
+		if (el) {
+			el.focus({ preventScroll: true });
+		}
+	}
+
+	/**
+	 * Bring the top of the panel area back into view after a tab switch.
+	 *
+	 * Panels differ in length, so swapping one for another from halfway down the
+	 * page drops the reader into the middle of a list they have not seen the
+	 * start of — or, when the incoming panel is the shorter one, at its very end
+	 * because the browser clamps the scroll position.
+	 *
+	 * Only runs once the nav bar has scrolled past the top of the viewport:
+	 * pressing a tab while it is still on screen already leaves the reader
+	 * looking at the start of the list, and scrolling then would be a pointless
+	 * jolt.
+	 *
+	 * The allowance for a sticky site header comes from `scroll-margin-top` on
+	 * the panel wrapper rather than from arithmetic here, so this knows nothing
+	 * about the active theme's header — including whether it is on screen at
+	 * this instant.
+	 *
+	 * @param {HTMLElement} wrapper Element wrapper.
+	 */
+	function scrollPanelsIntoView(wrapper) {
+		var nav = wrapper.querySelector('.menu-nav-container');
+		var panels = wrapper.querySelector('.tab-panels-wrapper');
+
+		if (!nav || !panels || nav.getBoundingClientRect().top >= 0) {
+			return;
+		}
+
+		panels.scrollIntoView({
+			behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+			block: 'start'
+		});
+	}
+
+	/**
 	 * Show a panel with its fade transition.
 	 *
 	 * A transition cannot run on an element that was `display: none` in the same
@@ -197,6 +254,10 @@ window.PhoMenuNav = (function () {
 			})
 		);
 
+		// Subscribers are told about every switch, whichever control caused it,
+		// so a second face on these tabs never has to guess the current state.
+		var listeners = [];
+
 		function activate(target) {
 			var next = typeof target === 'number' ? buttons[target] : target;
 
@@ -226,6 +287,11 @@ window.PhoMenuNav = (function () {
 			});
 
 			scrollTabIntoView(next);
+			scrollPanelsIntoView(wrapper);
+
+			listeners.forEach(function (fn) {
+				fn(next);
+			});
 		}
 
 		buttons.forEach(function (btn) {
@@ -250,7 +316,12 @@ window.PhoMenuNav = (function () {
 
 				var next = buttons[(buttons.indexOf(btn) + offset + buttons.length) % buttons.length];
 				activate(next);
-				next.focus();
+
+				// Quietly: activate() has already placed the page — centring the
+				// tab in its own strip, and scrolling the panels up when the bar
+				// is off screen — and the browser's own scroll-into-view for the
+				// newly focused button would pull against that.
+				focusQuietly(next);
 			});
 		});
 
@@ -259,12 +330,295 @@ window.PhoMenuNav = (function () {
 		return {
 			buttons: buttons,
 			activate: activate,
+			onChange: function (fn) {
+				listeners.push(fn);
+			},
 			next: function () {
 				activate((index + 1) % buttons.length);
 			},
 			current: function () {
 				return index;
 			}
+		};
+	}
+
+	/**
+	 * Build the floating category picker for one element instance.
+	 *
+	 * The nav bar only exists at the top of the element, so a reader partway
+	 * down a long panel cannot change category without scrolling all of it back.
+	 * The picker is a second face on the same tab controller — it never decides
+	 * which panel is visible, it only calls `activate()` and reflects what comes
+	 * back through `onChange`.
+	 *
+	 * @param {HTMLElement} wrapper Element wrapper.
+	 * @param {Object}      tabs    Controller returned by createTabs().
+	 * @return {Object|null} Controller, or null when the markup is absent.
+	 */
+	function createCategoryPicker(wrapper, tabs) {
+		var picker = wrapper.querySelector('.menu-picker');
+
+		if (!picker || !tabs) {
+			return null;
+		}
+
+		var toggle = picker.querySelector('.menu-picker-toggle');
+		var sheet = picker.querySelector('.menu-picker-sheet');
+		var backdrop = picker.querySelector('.menu-picker-backdrop');
+		var label = picker.querySelector('.menu-picker-toggle-label');
+		var items = Array.prototype.slice.call(picker.querySelectorAll('.menu-picker-item'));
+		var navContainer = wrapper.querySelector('.menu-nav-container');
+
+		if (!toggle || !sheet || !backdrop || !navContainer || !items.length) {
+			return null;
+		}
+
+		var isOpen = false;
+		var savedOverflow = '';
+		var scrollLocked = false;
+
+		/**
+		 * Stop the page scrolling behind the open sheet — where that is free.
+		 *
+		 * Taking a classic scrollbar away is never free. Let the viewport grow
+		 * into the strip it frees and every `position: fixed` thing on the page
+		 * lurches sideways by its width. Reserve the strip with
+		 * `scrollbar-gutter: stable` instead and the content box moves by a
+		 * fraction of a pixel — measured at 1px here, which is enough to re-wrap
+		 * this element's container-query typography and heave the whole article
+		 * several pixels up the screen. Neither is a fair price for a lock.
+		 *
+		 * So the lock is taken only where the scrollbar costs no layout space to
+		 * begin with: overlay scrollbars, which is every touch device — and that
+		 * is exactly where the sheet covers the screen and a lock earns its
+		 * keep. Everywhere else the sheet is a popover hung off a button, and it
+		 * dismisses on scroll the way any other popover does.
+		 */
+		function lockScroll() {
+			var root = document.documentElement;
+
+			scrollLocked = window.innerWidth === root.clientWidth;
+
+			if (!scrollLocked) {
+				window.addEventListener('scroll', close, { passive: true });
+				return;
+			}
+
+			savedOverflow = root.style.overflow;
+			root.style.overflow = 'hidden';
+		}
+
+		function unlockScroll() {
+			if (!scrollLocked) {
+				window.removeEventListener('scroll', close);
+				return;
+			}
+
+			document.documentElement.style.overflow = savedOverflow;
+			scrollLocked = false;
+		}
+
+		function open() {
+			if (isOpen) {
+				return;
+			}
+
+			isOpen = true;
+
+			backdrop.removeAttribute('hidden');
+			sheet.removeAttribute('hidden');
+
+			// Same reason as reveal(): a transition cannot run on an element
+			// that was `display: none` in this frame.
+			void sheet.offsetWidth;
+
+			picker.classList.add('is-open');
+			toggle.setAttribute('aria-expanded', 'true');
+			lockScroll();
+
+			var current = picker.querySelector('.menu-picker-item.is-active');
+
+			// Focused quietly throughout: every target here is `position:
+			// fixed` and already fully on screen, so there is nothing the
+			// browser's scroll-into-view could usefully do — and the sheet's
+			// list scrolls on a short viewport, where it could do something
+			// unwanted.
+			focusQuietly(current || items[0]);
+		}
+
+		function close() {
+			if (!isOpen) {
+				return;
+			}
+
+			isOpen = false;
+
+			picker.classList.remove('is-open');
+			toggle.setAttribute('aria-expanded', 'false');
+			backdrop.setAttribute('hidden', '');
+			sheet.setAttribute('hidden', '');
+			unlockScroll();
+
+			focusQuietly(toggle);
+		}
+
+		/**
+		 * Keep Tab inside the sheet while it is open.
+		 *
+		 * `aria-modal` tells assistive technology the rest of the page is inert
+		 * but does nothing to the tab order itself. Every focusable node in the
+		 * sheet is a button, so they are the whole cycle.
+		 *
+		 * @param {KeyboardEvent} e Key event.
+		 */
+		function trapFocus(e) {
+			var focusable = sheet.querySelectorAll('button:not([disabled])');
+
+			if (!focusable.length) {
+				return;
+			}
+
+			var first = focusable[0];
+			var last = focusable[focusable.length - 1];
+
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				focusQuietly(last);
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				focusQuietly(first);
+			}
+		}
+
+		toggle.addEventListener('click', function () {
+			if (isOpen) {
+				close();
+			} else {
+				open();
+			}
+		});
+
+		backdrop.addEventListener('click', close);
+
+		var closeButton = picker.querySelector('.menu-picker-close');
+
+		if (closeButton) {
+			closeButton.addEventListener('click', close);
+		}
+
+		sheet.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				close();
+			} else if (e.key === 'Tab') {
+				trapFocus(e);
+			}
+		});
+
+		items.forEach(function (item) {
+			item.addEventListener('click', function () {
+				var target = item.getAttribute('data-target');
+				var btn = wrapper.querySelector('.nav-item[data-target="' + target + '"]');
+
+				// Closed before the switch, not after: the smooth scroll
+				// activate() starts cannot run while the body is still locked.
+				close();
+
+				if (btn) {
+					tabs.activate(btn);
+				}
+			});
+		});
+
+		tabs.onChange(function (btn) {
+			var target = btn.getAttribute('data-target');
+
+			items.forEach(function (item) {
+				var active = item.getAttribute('data-target') === target;
+				var name = item.querySelector('.menu-picker-name');
+
+				item.classList.toggle('is-active', active);
+
+				if (!active) {
+					item.removeAttribute('aria-current');
+					return;
+				}
+
+				item.setAttribute('aria-current', 'true');
+
+				if (label && name) {
+					label.textContent = name.textContent;
+				}
+			});
+		});
+
+		/**
+		 * Decide whether the toggle belongs on screen, and act on it.
+		 *
+		 * The toggle earns its place only in the stretch where the nav bar has
+		 * been scrolled off the top and there is still showcase left to read.
+		 *
+		 * Measured from geometry rather than read off the observer's entries, so
+		 * the same answer can be seeded synchronously below: observer callbacks
+		 * are delivered as part of updating the rendering, which a background
+		 * tab never does, and a page restored partway down the element would
+		 * otherwise carry no state at all until someone looked at it. Same
+		 * reasoning as the first applyMask() call.
+		 */
+		function syncVisibility() {
+			var nav = navContainer.getBoundingClientRect();
+			var showcase = wrapper.getBoundingClientRect();
+
+			// The bar counts as present while it is on screen *or* still below
+			// the fold, so scrolling down towards the element never raises the
+			// toggle ahead of it.
+			var navPresent = nav.bottom > 0;
+			var showcasePresent = showcase.top < window.innerHeight && showcase.bottom > 0;
+			var visible = !navPresent && showcasePresent;
+
+			picker.classList.toggle('is-visible', visible);
+
+			if (!visible) {
+				close();
+			}
+		}
+
+		// Both edges that matter — the nav bar leaving the top, the showcase
+		// leaving the bottom — are threshold crossings, which is exactly what a
+		// default-threshold observer reports. It is only the trigger here; the
+		// answer itself comes from syncVisibility().
+		var observer = new IntersectionObserver(syncVisibility);
+
+		observer.observe(navContainer);
+		observer.observe(wrapper);
+		syncVisibility();
+
+		// Rendered hidden so a reader without JavaScript is never shown a button
+		// that cannot do anything.
+		picker.removeAttribute('hidden');
+
+		var lastWidth = window.innerWidth;
+
+		window.addEventListener(
+			'resize',
+			rafThrottle(function () {
+				// Dismiss the sheet on a real reflow only. A height-only resize
+				// is the mobile browser's own chrome sliding in and out, which
+				// must not yank the sheet out from under a reader's thumb.
+				if (window.innerWidth !== lastWidth) {
+					lastWidth = window.innerWidth;
+					close();
+				}
+
+				syncVisibility();
+			})
+		);
+
+		return {
+			open: open,
+			close: close,
+			sync: syncVisibility,
+			items: items
 		};
 	}
 
@@ -329,6 +683,7 @@ window.PhoMenuNav = (function () {
 	return {
 		register: register,
 		createTabs: createTabs,
+		createCategoryPicker: createCategoryPicker,
 		initDragScroll: initDragScroll,
 		scrollTabIntoView: scrollTabIntoView,
 		rafThrottle: rafThrottle
