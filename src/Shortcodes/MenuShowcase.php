@@ -193,7 +193,18 @@ class MenuShowcase extends AbstractTabbedShortcode {
 					 */
 					?>
 					<div class="dish-description">
-						<?php echo wp_kses_post( wpautop( $description ) ); ?>
+						<?php
+						/*
+						 * The copy is wrapped rather than emitted loose: themes lay
+						 * .dish-description out as a flex row, and wpautop() returns
+						 * one <p> per paragraph, so a two-paragraph description
+						 * would put each paragraph in its own column beside the
+						 * price instead of stacking them.
+						 */
+						?>
+						<div class="dish-description-text">
+							<?php echo wp_kses_post( wpautop( $description ) ); ?>
+						</div>
 
 						<?php if ( $has_price ) : ?>
 							<div class="price-wrapper">
