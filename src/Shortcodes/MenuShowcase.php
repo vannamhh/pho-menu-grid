@@ -155,10 +155,7 @@ class MenuShowcase extends AbstractTabbedShortcode {
 							$image_id,
 							'large',
 							false,
-							array(
-								'class' => 'dish-product-img',
-								'alt'   => esc_attr( $en_name ),
-							)
+							$this->image_attr( 'showcase', esc_attr( $en_name ), 'dish-product-img' )
 						);
 					}
 					?>

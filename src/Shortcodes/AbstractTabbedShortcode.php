@@ -473,6 +473,54 @@ abstract class AbstractTabbedShortcode {
 	}
 
 	/**
+	 * Build the attributes for an item image, including an honest `sizes`.
+	 *
+	 * WordPress derives `sizes` from the requested size name, so asking for
+	 * `large` advertises "1020px wide" no matter how the image is really laid
+	 * out. These images are one column of a row, or one cell of a grid, so that
+	 * default makes a 2x display fetch the 2048px file for a box a few hundred
+	 * pixels wide.
+	 *
+	 * The active theme owns the real dimensions, so the value is filterable.
+	 *
+	 * @param string $context Either 'grid' or 'showcase'.
+	 * @param string $alt     Alt text.
+	 * @param string $class   CSS class.
+	 * @return array<string, string>
+	 */
+	protected function image_attr( string $context, string $alt, string $class ): array {
+		$defaults = array(
+			// One cell of a three-column grid, full width on small screens.
+			'grid'     => '(max-width: 549px) 80vw, (max-width: 1024px) 45vw, 380px',
+			// One of two columns from 768px up, near full width below that.
+			'showcase' => '(max-width: 767px) 92vw, (max-width: 1200px) 46vw, 560px',
+		);
+
+		/**
+		 * Filters the `sizes` attribute used for menu item images.
+		 *
+		 * @param string $sizes   A sizes attribute value.
+		 * @param string $context Either 'grid' or 'showcase'.
+		 */
+		$sizes = (string) apply_filters(
+			'pho_menu_grid_image_sizes',
+			$defaults[ $context ] ?? $defaults['grid'],
+			$context
+		);
+
+		$attr = array(
+			'class' => $class,
+			'alt'   => $alt,
+		);
+
+		if ( '' !== $sizes ) {
+			$attr['sizes'] = $sizes;
+		}
+
+		return $attr;
+	}
+
+	/**
 	 * Resolve the outbound link for an item.
 	 *
 	 * The post type is not publicly queryable, so `get_permalink()` would hand

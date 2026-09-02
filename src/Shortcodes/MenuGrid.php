@@ -134,10 +134,7 @@ class MenuGrid extends AbstractTabbedShortcode {
 				$thumb_id,
 				'large',
 				false,
-				array(
-					'class' => 'dish-img',
-					'alt'   => esc_attr( $title ),
-				)
+				$this->image_attr( 'grid', esc_attr( $title ), 'dish-img' )
 			);
 		} else {
 			echo '<div class="dish-img dish-img--placeholder" aria-hidden="true"></div>';
